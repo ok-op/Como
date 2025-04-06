@@ -21,57 +21,48 @@
     }
 
     header, footer {
-      background-color: #1f2937;
-      padding: 15px 0;
+      background-color: #111827;
+      padding: 15px;
       text-align: center;
-      font-size: 18px;
-      color: #f3f4f6;
-      position: sticky;
+      position: fixed;
+      width: 100%;
       z-index: 10;
     }
 
     header {
       top: 0;
+      font-size: 20px;
+      font-weight: bold;
     }
 
     footer {
       bottom: 0;
-    }
-
-    .main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      font-size: 14px;
+      color: #d1d5db;
     }
 
     .container {
-      background-color: #1f2937;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-      width: 90%;
-      max-width: 850px;
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      font-size: 28px;
-      color: #f9fafb;
+      flex: 1;
+      margin-top: 70px;
+      margin-bottom: 50px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
     }
 
     input[type="text"] {
       width: 100%;
+      max-width: 700px;
       padding: 12px;
       font-size: 16px;
       border-radius: 8px;
       border: none;
-      margin-bottom: 20px;
       outline: none;
       background-color: #374151;
       color: white;
+      margin-bottom: 20px;
     }
 
     .buttons {
@@ -105,6 +96,7 @@
 
     iframe {
       width: 100%;
+      max-width: 800px;
       height: 450px;
       border: none;
       border-radius: 12px;
@@ -120,29 +112,21 @@
 </head>
 <body>
 
-  <header>
-    Terabox ভিডিও প্লেয়ার
-  </header>
+  <header>Terabox ভিডিও প্লেয়ার</header>
 
-  <div class="main">
-    <div class="container">
-      <h1>ভিডিও দেখুন সরাসরি Terabox থেকে</h1>
-
-      <input type="text" id="linkInput" placeholder="এখানে আপনার Terabox ফাইল লিংক দিন..." />
-
-      <div class="buttons">
-        <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
-        <button class="retry" onclick="retryVideo()">রি-ট্রাই</button>
-        <button class="clear" onclick="clearInput()">লিংক ক্লিয়ার</button>
-      </div>
-
-      <iframe id="videoFrame" src="" allowfullscreen></iframe>
+  <div class="container">
+    <input type="text" id="linkInput" placeholder="এখানে Terabox শেয়ার লিংক দিন..." />
+    
+    <div class="buttons">
+      <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
+      <button class="retry" onclick="retryVideo()">রি-ট্রাই</button>
+      <button class="clear" onclick="clearLink()">লিংক ক্লিয়ার</button>
     </div>
+    
+    <iframe id="videoFrame" src="" allowfullscreen></iframe>
   </div>
 
-  <footer>
-    তৈরি করেছে @YourName | © 2025
-  </footer>
+  <footer>&copy; 2025 - প্লে হয় না? রি-ট্রাই দিন বা নতুন লিংক ব্যবহার করুন।</footer>
 
   <script>
     let currentURL = "";
@@ -150,10 +134,9 @@
     function playVideo() {
       const link = document.getElementById('linkInput').value.trim();
       if (!link) {
-        alert('দয়া করে একটি Terabox ফাইল লিংক দিন!');
+        alert('দয়া করে একটি Terabox লিংক দিন!');
         return;
       }
-      // Convert link to direct play URL
       currentURL = `https://player.terabox.tech/?url=${encodeURIComponent(link)}`;
       document.getElementById('videoFrame').src = currentURL;
     }
@@ -166,7 +149,7 @@
       document.getElementById('videoFrame').src = currentURL;
     }
 
-    function clearInput() {
+    function clearLink() {
       document.getElementById('linkInput').value = "";
       document.getElementById('videoFrame').src = "";
       currentURL = "";
