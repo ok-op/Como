@@ -2,129 +2,92 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terabox ভিডিও প্লেয়ার</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #0f172a;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background-color: #111827;
+      color: white;
+      text-align: center;
       padding: 30px;
     }
 
-    h1 {
-      margin-bottom: 20px;
-      color: #38bdf8;
-    }
-
     input[type="text"] {
-      width: 100%;
-      max-width: 720px;
-      padding: 12px;
+      width: 90%;
+      max-width: 600px;
+      padding: 10px;
       font-size: 16px;
       border-radius: 8px;
       border: none;
       margin-bottom: 20px;
     }
 
-    #videoContainer {
-      width: 100%;
-      max-width: 720px;
-      background: #1e293b;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    .buttons {
       margin-bottom: 20px;
-    }
-
-    video {
-      width: 100%;
-      height: auto;
-      background: #000;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
     }
 
     button {
-      background-color: #38bdf8;
-      border: none;
-      color: white;
       padding: 10px 20px;
+      margin: 5px;
       font-size: 16px;
-      border-radius: 8px;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background 0.3s;
     }
 
-    button:hover {
-      background-color: #0ea5e9;
+    .play {
+      background-color: #22c55e;
+      color: white;
     }
 
     .retry {
       background-color: #facc15;
-      color: #000;
+      color: black;
     }
 
-    .retry:hover {
-      background-color: #eab308;
+    iframe {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
 
   <h1>Terabox ভিডিও প্লেয়ার</h1>
-
-  <input type="text" id="userLink" placeholder="এখানে আপনার Terabox লিংক পেস্ট করুন..." value="https://terafileshare.com/s/16-m_kYEy-Z6i1g_sKIgZzg" />
-
-  <div id="videoContainer">
-    <video id="videoPlayer" controls>
-      আপনার ব্রাউজার ভিডিও চালাতে অক্ষম।
-    </video>
-  </div>
-
-  <div class="controls">
-    <button onclick="loadVideo()">ভিডিও প্লে</button>
+  
+  <input type="text" id="linkInput" placeholder="এখানে আপনার Terabox লিংক দিন..." value="https://terafileshare.com/s/16-m_kYEy-Z6i1g_sKIgZzg" />
+  
+  <div class="buttons">
+    <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
     <button class="retry" onclick="retryVideo()">রি-ট্রাই প্লে</button>
   </div>
+  
+  <iframe id="videoFrame" src="" allowfullscreen></iframe>
 
   <script>
-    const videoPlayer = document.getElementById("videoPlayer");
-    const userLink = document.getElementById("userLink");
-    let currentSrc = "";
+    let currentURL = "";
 
-    function loadVideo() {
-      const userUrl = userLink.value.trim();
-      if (!userUrl) {
-        alert("দয়া করে একটি লিংক দিন!");
+    function playVideo() {
+      const link = document.getElementById('linkInput').value.trim();
+      if (!link) {
+        alert('দয়া করে একটি Terabox লিংক দিন!');
         return;
       }
-
-      currentSrc = `https://terabox-play.lbni.workers.dev/api?url=${encodeURIComponent(userUrl)}`;
-      videoPlayer.src = currentSrc;
-      videoPlayer.load();
-      videoPlayer.play().catch(err => {
-        console.warn("প্রথমবারে প্লে হয়নি, রি-ট্রাই করতে পারেন।");
-      });
+      currentURL = `https://terabox-play.lbni.workers.dev/api?url=${encodeURIComponent(link)}`;
+      document.getElementById('videoFrame').src = currentURL;
     }
 
     function retryVideo() {
-      if (!currentSrc) {
-        alert("আগে ভিডিও প্লে করুন!");
+      if (!currentURL) {
+        alert('প্রথমে একটি ভিডিও চালু করুন!');
         return;
       }
-
-      videoPlayer.src = currentSrc;
-      videoPlayer.load();
-      videoPlayer.play().catch(err => {
-        alert("রি-ট্রাই করেও ভিডিও প্লে হয়নি!");
-      });
+      document.getElementById('videoFrame').src = currentURL;
     }
   </script>
 
