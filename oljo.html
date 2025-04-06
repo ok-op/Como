@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <title>Terabox ভিডিও প্লেয়ার</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header, footer {
+      background-color: #1f2937;
+      padding: 15px 0;
+      text-align: center;
+      font-size: 18px;
+      color: #f3f4f6;
+      position: sticky;
+      z-index: 10;
+    }
+
+    header {
+      top: 0;
+    }
+
+    footer {
+      bottom: 0;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #1f2937;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      width: 90%;
+      max-width: 850px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #f9fafb;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+      outline: none;
+      background-color: #374151;
+      color: white;
+    }
+
+    .buttons {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .play {
+      background-color: #22c55e;
+      color: white;
+    }
+
+    .retry {
+      background-color: #facc15;
+      color: black;
+    }
+
+    .clear {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    iframe {
+      width: 100%;
+      height: 450px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    @media (max-width: 600px) {
+      iframe {
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    Terabox ভিডিও প্লেয়ার
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>ভিডিও দেখুন সরাসরি Terabox থেকে</h1>
+
+      <input type="text" id="linkInput" placeholder="এখানে আপনার Terabox ফাইল লিংক দিন..." />
+
+      <div class="buttons">
+        <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
+        <button class="retry" onclick="retryVideo()">রি-ট্রাই</button>
+        <button class="clear" onclick="clearInput()">লিংক ক্লিয়ার</button>
+      </div>
+
+      <iframe id="videoFrame" src="" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <footer>
+    তৈরি করেছে @YourName | © 2025
+  </footer>
+
+  <script>
+    let currentURL = "";
+
+    function playVideo() {
+      const link = document.getElementById('linkInput').value.trim();
+      if (!link) {
+        alert('দয়া করে একটি Terabox ফাইল লিংক দিন!');
+        return;
+      }
+      // Convert link to direct play URL
+      currentURL = `https://player.terabox.tech/?url=${encodeURIComponent(link)}`;
+      document.getElementById('videoFrame').src = currentURL;
+    }
+
+    function retryVideo() {
+      if (!currentURL) {
+        alert('প্রথমে একটি ভিডিও চালু করুন!');
+        return;
+      }
+      document.getElementById('videoFrame').src = currentURL;
+    }
+
+    function clearInput() {
+      document.getElementById('linkInput').value = "";
+      document.getElementById('videoFrame').src = "";
+      currentURL = "";
+    }
+  </script>
+
+</body>
+</html>
