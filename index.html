@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terabox ভিডিও প্লেয়ার</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f172a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #38bdf8;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 720px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    #videoContainer {
+      width: 100%;
+      max-width: 720px;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      margin-bottom: 20px;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    button {
+      background-color: #38bdf8;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0ea5e9;
+    }
+
+    .retry {
+      background-color: #facc15;
+      color: #000;
+    }
+
+    .retry:hover {
+      background-color: #eab308;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Terabox ভিডিও প্লেয়ার</h1>
+
+  <input type="text" id="userLink" placeholder="এখানে আপনার Terabox লিংক পেস্ট করুন..." value="https://terafileshare.com/s/16-m_kYEy-Z6i1g_sKIgZzg" />
+
+  <div id="videoContainer">
+    <video id="videoPlayer" controls>
+      <source id="videoSource" src="" type="video/mp4" />
+      আপনার ব্রাউজার ভিডিও চালাতে অক্ষম।
+    </video>
+  </div>
+
+  <div class="controls">
+    <button onclick="playVideo()">ভিডিও প্লে</button>
+    <button class="retry" onclick="retryVideo()">রি-ট্রাই প্লে</button>
+  </div>
+
+  <script>
+    const videoSource = document.getElementById("videoSource");
+    const videoPlayer = document.getElementById("videoPlayer");
+    const userLink = document.getElementById("userLink");
+    let currentUrl = "";
+
+    function playVideo() {
+      const rawLink = userLink.value.trim();
+      if (!rawLink) return alert("দয়া করে একটি Terabox লিংক দিন।");
+
+      const apiUrl = `https://terabox-play.lbni.workers.dev/api?url=${encodeURIComponent(rawLink)}`;
+      currentUrl = apiUrl;
+
+      fetch(apiUrl)
+        .then(res => res.text())
+        .then(link => {
+          videoSource.src = link;
+          videoPlayer.load();
+          videoPlayer.play();
+        })
+        .catch(err => {
+          alert("ভিডিও লোড করতে সমস্যা হচ্ছে!");
+          console.error(err);
+        });
+    }
+
+    function retryVideo() {
+      if (!currentUrl) return alert("আগে একটি ভিডিও প্লে করুন।");
+
+      fetch(currentUrl)
+        .then(res => res.text())
+        .then(link => {
+          videoSource.src = link;
+          videoPlayer.load();
+          videoPlayer.play();
+        })
+        .catch(err => {
+          alert("রি-ট্রাই করতে সমস্যা হচ্ছে!");
+          console.error(err);
+        });
+    }
+  </script>
+
+</body>
+</html>
