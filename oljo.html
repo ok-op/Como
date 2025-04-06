@@ -21,57 +21,69 @@
     }
 
     header, footer {
-      background-color: #111827;
-      padding: 15px;
+      background-color: #1f2937;
+      padding: 15px 0;
       text-align: center;
-      position: fixed;
-      width: 100%;
+      font-size: 18px;
+      color: #f3f4f6;
+      position: sticky;
       z-index: 10;
     }
 
     header {
       top: 0;
-      font-size: 20px;
-      font-weight: bold;
     }
 
     footer {
       bottom: 0;
-      font-size: 14px;
-      color: #d1d5db;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
     .container {
-      flex: 1;
-      margin-top: 70px;
-      margin-bottom: 50px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: start;
+      background-color: #1f2937;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      width: 90%;
+      max-width: 850px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #f9fafb;
     }
 
     input[type="text"] {
       width: 100%;
-      max-width: 700px;
       padding: 12px;
       font-size: 16px;
       border-radius: 8px;
       border: none;
+      margin-bottom: 20px;
       outline: none;
       background-color: #374151;
       color: white;
-      margin-bottom: 20px;
     }
 
     .buttons {
       margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
     }
 
     button {
       padding: 10px 20px;
-      margin: 5px;
       font-size: 16px;
       border: none;
       border-radius: 6px;
@@ -94,51 +106,224 @@
       color: white;
     }
 
+    .nav {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .nav:disabled {
+      background-color: #64748b;
+      cursor: not-allowed;
+    }
+
     iframe {
       width: 100%;
-      max-width: 800px;
       height: 450px;
       border: none;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
+    .link-list {
+      width: 100%;
+      margin-bottom: 20px;
+      max-height: 150px;
+      overflow-y: auto;
+      background-color: #374151;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .link-item {
+      padding: 8px;
+      margin: 5px 0;
+      background-color: #1e293b;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .link-item.active {
+      background-color: #3b82f6;
+    }
+
+    .remove-link {
+      color: #ef4444;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
     @media (max-width: 600px) {
       iframe {
         height: 250px;
+      }
+      
+      .buttons {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
 
-  <header>Terabox ভিডিও প্লেয়ার</header>
+  <header>
+    Terabox ভিডিও প্লেয়ার
+  </header>
 
-  <div class="container">
-    <input type="text" id="linkInput" placeholder="এখানে Terabox শেয়ার লিংক দিন..." />
-    
-    <div class="buttons">
-      <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
-      <button class="retry" onclick="retryVideo()">রি-ট্রাই</button>
-      <button class="clear" onclick="clearLink()">লিংক ক্লিয়ার</button>
+  <div class="main">
+    <div class="container">
+      <h1>ভিডিও দেখুন সরাসরি Terabox থেকে</h1>
+
+      <input type="text" id="linkInput" placeholder="এখানে আপনার Terabox লিংক দিন..." value="https://terafileshare.com/s/16-m_kYEy-Z6i1g_sKIgZzg" />
+      
+      <div class="buttons">
+        <button class="play" onclick="playVideo()">Video play</button>
+        <button class="play" onclick="addLink()">Add Link</button>
+        <button class="retry" onclick="retryVideo()">Re-try</button>
+        <button class="clear" onclick="clearInput()">Link clear</button>
+      </div>
+      
+      <div class="link-list" id="linkList"></div>
+      
+      <div class="buttons">
+        <button class="nav" id="prevBtn" onclick="playPrevious()" disabled>Previous</button>
+        <button class="nav" id="nextBtn" onclick="playNext()" disabled>Next</button>
+      </div>
+
+      <iframe id="videoFrame" src="" allowfullscreen></iframe>
     </div>
-    
-    <iframe id="videoFrame" src="" allowfullscreen></iframe>
   </div>
 
-  <footer>&copy; 2025 - প্লে হয় না? রি-ট্রাই দিন বা নতুন লিংক ব্যবহার করুন।</footer>
+  <footer>
+    তৈরি করেছে 𝐖𝐎𝐎𝐃𝐜𝐫𝐚𝐟𝐭 | © 2025
+  </footer>
 
   <script>
     let currentURL = "";
-
+    let links = [];
+    let currentIndex = -1;
+    
+    // Load saved links from localStorage
+    function loadLinks() {
+      const savedLinks = localStorage.getItem('teraboxLinks');
+      if (savedLinks) {
+        links = JSON.parse(savedLinks);
+        renderLinkList();
+      }
+    }
+    
+    // Save links to localStorage
+    function saveLinks() {
+      localStorage.setItem('teraboxLinks', JSON.stringify(links));
+    }
+    
+    // Render the link list
+    function renderLinkList() {
+      const linkList = document.getElementById('linkList');
+      linkList.innerHTML = '';
+      
+      links.forEach((link, index) => {
+        const linkItem = document.createElement('div');
+        linkItem.className = `link-item ${index === currentIndex ? 'active' : ''}`;
+        linkItem.innerHTML = `
+          <span>${link}</span>
+          <span class="remove-link" onclick="removeLink(${index})">×</span>
+        `;
+        linkItem.onclick = () => playLink(index);
+        linkList.appendChild(linkItem);
+      });
+      
+      updateNavButtons();
+    }
+    
+    // Add a new link
+    function addLink() {
+      const link = document.getElementById('linkInput').value.trim();
+      if (!link) {
+        alert('দয়া করে একটি Terabox লিংক দিন!');
+        return;
+      }
+      
+      if (!links.includes(link)) {
+        links.push(link);
+        saveLinks();
+        renderLinkList();
+      }
+    }
+    
+    // Remove a link
+    function removeLink(index) {
+      event.stopPropagation(); // Prevent triggering the play function
+      links.splice(index, 1);
+      if (currentIndex >= index) {
+        currentIndex--;
+      }
+      saveLinks();
+      renderLinkList();
+      
+      if (links.length === 0) {
+        document.getElementById('videoFrame').src = "";
+        currentURL = "";
+      }
+    }
+    
+    // Play a specific link
+    function playLink(index) {
+      const link = links[index];
+      if (!link) return;
+      
+      currentIndex = index;
+      currentURL = `https://terabox-play.lbni.workers.dev/api?url=${encodeURIComponent(link)}`;
+      document.getElementById('videoFrame').src = currentURL;
+      renderLinkList();
+    }
+    
+    // Play next link
+    function playNext() {
+      if (currentIndex < links.length - 1) {
+        playLink(currentIndex + 1);
+      }
+    }
+    
+    // Play previous link
+    function playPrevious() {
+      if (currentIndex > 0) {
+        playLink(currentIndex - 1);
+      }
+    }
+    
+    // Update navigation buttons state
+    function updateNavButtons() {
+      document.getElementById('prevBtn').disabled = currentIndex <= 0;
+      document.getElementById('nextBtn').disabled = currentIndex >= links.length - 1 || links.length === 0;
+    }
+    
+    // Original play function
     function playVideo() {
       const link = document.getElementById('linkInput').value.trim();
       if (!link) {
         alert('দয়া করে একটি Terabox লিংক দিন!');
         return;
       }
-      currentURL = `https://player.terabox.tech/?url=${encodeURIComponent(link)}`;
-      document.getElementById('videoFrame').src = currentURL;
+      
+      // Check if link exists in list
+      const existingIndex = links.indexOf(link);
+      if (existingIndex >= 0) {
+        playLink(existingIndex);
+        return;
+      }
+      
+      // Add to list and play
+      if (!links.includes(link)) {
+        links.push(link);
+        saveLinks();
+      }
+      playLink(links.length - 1);
     }
 
     function retryVideo() {
@@ -149,12 +334,13 @@
       document.getElementById('videoFrame').src = currentURL;
     }
 
-    function clearLink() {
+    function clearInput() {
       document.getElementById('linkInput').value = "";
-      document.getElementById('videoFrame').src = "";
-      currentURL = "";
     }
+    
+    // Initialize
+    loadLinks();
   </script>
 
 </body>
-</html>
+                                                                             </html>
