@@ -4,22 +4,50 @@
   <meta charset="UTF-8" />
   <title>Terabox ভিডিও প্লেয়ার</title>
   <style>
-    body {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #111827;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
-      text-align: center;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: #1f2937;
       padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      width: 90%;
+      max-width: 850px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #f9fafb;
     }
 
     input[type="text"] {
-      width: 90%;
-      max-width: 600px;
-      padding: 10px;
+      width: 100%;
+      padding: 12px;
       font-size: 16px;
       border-radius: 8px;
       border: none;
       margin-bottom: 20px;
+      outline: none;
+      background-color: #374151;
+      color: white;
     }
 
     .buttons {
@@ -48,26 +76,32 @@
 
     iframe {
       width: 100%;
-      max-width: 800px;
       height: 450px;
       border: none;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
+
+    @media (max-width: 600px) {
+      iframe {
+        height: 250px;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <h1>Terabox ভিডিও প্লেয়ার</h1>
-  
-  <input type="text" id="linkInput" placeholder="এখানে আপনার Terabox লিংক দিন..." value="https://terafileshare.com/s/16-m_kYEy-Z6i1g_sKIgZzg" />
-  
-  <div class="buttons">
-    <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
-    <button class="retry" onclick="retryVideo()">রি-ট্রাই প্লে</button>
+  <div class="container">
+    <h1>Terabox ভিডিও প্লেয়ার</h1>
+    
+    <input type="text" id="linkInput" placeholder="এখানে আপনার Terabox লিংক দিন..." value="https://terafileshare.com/s/16-m_kYEy-Z6i1g_sKIgZzg" />
+    
+    <div class="buttons">
+      <button class="play" onclick="playVideo()">ভিডিও প্লে</button>
+      <button class="retry" onclick="retryVideo()">রি-ট্রাই প্লে</button>
+    </div>
+    
+    <iframe id="videoFrame" src="" allowfullscreen></iframe>
   </div>
-  
-  <iframe id="videoFrame" src="" allowfullscreen></iframe>
 
   <script>
     let currentURL = "";
@@ -90,6 +124,5 @@
       document.getElementById('videoFrame').src = currentURL;
     }
   </script>
-
 </body>
 </html>
