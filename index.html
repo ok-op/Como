@@ -1,52 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Multi - TeraBox Links To Video Player</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Multi - TeraBox Links To Video Player</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+    }
+
+    .container, .how-to-use {
+      text-align: center;
+      padding: 20px;
+    }
+
+    textarea {
+      width: 90%;
+      height: 150px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #playerSection {
+      display: none;
+    }
+
+    #videoFrame {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+  </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div class="container">
-        <div class="input-box">
-            <h2>Online Player V2</h2>
-            <textarea id="videoLinks" placeholder="Paste Single & Multiple Links Here"></textarea>
-            <button onclick="startVideo()">Play Now</button>
-        </div>
-    </div>
-
-    <div id="inputSection">
-    <textarea id="videoLinks" placeholder="Paste video links here..."></textarea>
+  <!-- Input Section -->
+  <div class="container" id="inputSection">
+    <h2>Online Player V2</h2>
+    <textarea id="videoLinks" placeholder="Paste Single & Multiple Links Here (one per line)"></textarea>
+    <br />
     <button onclick="startVideo()">Play Now</button>
-</div>
+  </div>
 
-<div id="playerSection" style="display: none;">
-    <iframe id="videoFrame"></iframe>
+  <!-- Player Section -->
+  <div id="playerSection">
+    <iframe id="videoFrame" allowfullscreen></iframe>
     <div class="controls">
-        <button onclick="prevVideo()">⏮️ Previous</button>
-        <button onclick="nextVideo()">Next ⏭️</button>
-        <button onclick="backToInput()">← Back</button>
+      <button onclick="prevVideo()">⏮️ Previous</button>
+      <button onclick="nextVideo()">Next ⏭️</button>
+      <button onclick="backToInput()">← Back</button>
     </div>
-</div>
+  </div>
 
-    <div class="how-to-use">
-        <h2>How to Use This Mini Site</h2>
-        <p><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</p>
-        <p><strong>Step 2:</strong> Click the "Play Now" button to start playing.</p>
-        <p><strong>Step 3:</strong> Use the Previous (⏮) and Next (⏭) buttons to switch videos.</p>
-        <p><strong>Step 4:</strong> Click Back (⬅) to return to the link input page.</p>
-    </div>
+  <!-- How to Use -->
+  <div class="how-to-use">
+    <h2>How to Use This Mini Site</h2>
+    <p><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</p>
+    <p><strong>Step 2:</strong> Click the "Play Now" button to start playing.</p>
+    <p><strong>Step 3:</strong> Use the Previous (⏮) and Next (⏭) buttons to switch videos.</p>
+    <p><strong>Step 4:</strong> Click Back (⬅) to return to the link input page.</p>
+  </div>
 
-    <div class="video-frame" id="videoFrame">
-        <button class="back-btn" onclick="goBack()">⬅</button>
-        <iframe id="videoPlayer" allowfullscreen></iframe>
-        <div class="controls">
-            <button class="prev-btn" onclick="prevVideo()">⏮</button>
-            <button class="next-btn" onclick="nextVideo()">⏭</button>
-        </div>
-    </div>
+  <!-- Script -->
+  <script>
+    let videoLinks = [];
+    let currentIndex = 0;
 
+    function startVideo() {
+      const inputText = document.getElementById("videoLinks").value.trim();
+      videoLinks = inputText.split("\n").filter(link => link.trim() !== "");
+
+      if (videoLinks.length === 0) {
+        alert("কমপক্ষে একটি ভিডিও লিংক দিন!");
+        return;
+      }
+
+      currentIndex = 0;
+      document.getElementById("inputSection").style.display = "none";
+      document.getElementById("playerSection").style.display = "block";
+      updateVideo();
+    }
+
+    function updateVideo() {
+      const iframe = document.getElementById("videoFrame");
+      const url = videoLinks[currentIndex];
+      iframe.src = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(url)}`;
+    }
+
+    function nextVideo() {
+      if (currentIndex < videoLinks.length - 1) {
+        currentIndex++;
+        updateVideo();
+      }
+    }
+
+    function prevVideo() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateVideo();
+      }
+    }
+
+    function backToInput() {
+      document.getElementById("playerSection").style.display = "none";
+      document.getElementById("inputSection").style.display = "block";
+    }
+  </script>
 </body>
 </html>
