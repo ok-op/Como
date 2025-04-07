@@ -18,7 +18,7 @@ function playCurrentVideo() {
     let videoFrame = document.getElementById("videoFrame");
     let videoPlayer = document.getElementById("videoPlayer");
 
-    let apiURL = `https://ok-op.github.io/Jlof/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(videoLinks[currentIndex])}`;
+    let apiURL = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(videoLinks[currentIndex])}`;
     videoPlayer.src = apiURL;
 
     videoFrame.style.display = "block";
