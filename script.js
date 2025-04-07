@@ -12,16 +12,32 @@ function startVideo() {
 
     currentIndex = 0;
 
-    // পুরো body ক্লিয়ার করে নতুন ভিডিও ফ্রেম দেখানো
-    document.body.innerHTML = '';
+    document.getElementById("inputSection").style.display = "none";
+    document.getElementById("playerSection").style.display = "block";
 
-    // নতুন fullscreen ভিডিও ফ্রেম তৈরি
-    const videoFrame = document.createElement("div");
-    videoFrame.className = "video-frame active";
+    updateVideo();
+}
 
-    const iframe = document.createElement("iframe");
+function updateVideo() {
+    const iframe = document.getElementById("videoFrame");
     iframe.src = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(videoLinks[currentIndex])}`;
+}
 
-    videoFrame.appendChild(iframe);
-    document.body.appendChild(videoFrame);
+function nextVideo() {
+    if (currentIndex < videoLinks.length - 1) {
+        currentIndex++;
+        updateVideo();
+    }
+}
+
+function prevVideo() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateVideo();
+    }
+}
+
+function backToInput() {
+    document.getElementById("playerSection").style.display = "none";
+    document.getElementById("inputSection").style.display = "block";
 }
