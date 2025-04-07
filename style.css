@@ -1,207 +1,158 @@
-/* Reset Styles */
+/* Reset some default styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
 }
 
 body {
-    background: #121212;
-    color: white;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #101010;
+    color: #fff;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    justify-content: center;
 }
 
-/* Container Box */
 .container {
+    margin-top: 50px;
     text-align: center;
 }
 
 .input-box {
-    background: #222;
-    padding: 25px;
+    background: #1f1f1f;
+    padding: 20px 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 600px;
 }
 
 .input-box h2 {
     margin-bottom: 15px;
+    color: #00ffd0;
 }
 
-.input-box textarea {
-    width: 300px;
+textarea {
+    width: 100%;
     height: 100px;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #444;
+    padding: 10px;
     border-radius: 8px;
-    background: #333;
-    color: white;
-    resize: none;
-}
-
-/* Input Box Button */
-.input-box button {
-    background: #ff4747;
-    color: white;
     border: none;
-    padding: 12px 25px;
-    cursor: pointer;
-    border-radius: 8px;
+    resize: none;
+    outline: none;
+    background-color: #2a2a2a;
+    color: #fff;
     font-size: 16px;
+    margin-bottom: 10px;
 }
 
-.input-box button:hover {
-    background: #ff1a1a;
+button {
+    background-color: #00ffd0;
+    color: #000;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
 }
 
-/* Video Frame */
+button:hover {
+    background-color: #00c9a7;
+}
+
+/* How to Use section */
+.how-to-use {
+    margin-top: 40px;
+    width: 90%;
+    max-width: 700px;
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.how-to-use h2 {
+    margin-bottom: 10px;
+    color: #00ffd0;
+}
+
+.how-to-use p {
+    margin: 6px 0;
+    line-height: 1.6;
+}
+
+/* Video Frame Popup */
 .video-frame {
-    display: none;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0.7);
     width: 90%;
-    max-width: 600px;
-    height: 350px;
-    border-radius: 10px;
-    background: black;
-    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    max-width: 900px;
+    height: 500px;
+    background: #000;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    display: none;
     opacity: 0;
+    z-index: 9999;
+    transition: all 0.4s ease;
+    overflow: hidden;
 }
 
 .video-frame.active {
     display: block;
     opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
 }
 
-/* Fullscreen Mode */
+/* Fullscreen mode */
 .video-frame.fullscreen {
     width: 100vw;
     height: 100vh;
     border-radius: 0;
 }
 
-/* Back Button (Left Side) */
-.back-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: red;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-}
-
-.back-btn:hover {
-    background: darkred;
-}
-
-/* Fullscreen Button (Right Side) */
-.fullscreen-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-}
-
-.fullscreen-btn:hover {
-    background: rgba(255, 255, 255, 0.6);
-}
-
-/* Video Player */
 .video-frame iframe {
     width: 100%;
     height: 100%;
     border: none;
 }
 
-/* Controls (Next-Prev) */
+/* Controls */
 .controls {
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 20px;
-}
-
-.prev-btn, .next-btn {
-    background: rgba(0, 0, 0, 0.7);
-    color: red;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 16px;
-    margin: 5px;
-    border-radius: 5px;
-    transition: 0.3s;
-}
-
-.prev-btn:hover, .next-btn:hover {
-    background: rgba(255, 255, 255, 0.6);
-}
-
-/* Credit Text */
-.credit {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 14px;
-    opacity: 0.8;
-}
-
-/* Footer Section */
-footer {
     position: absolute;
     bottom: 10px;
     width: 100%;
     text-align: center;
-    padding: 10px 0;
-    /*background: ;*/
-    color: red;
-    font-size: 14px;
 }
 
-/* How to Use Section */
-.how-to-use {
-    background: #222;
-    padding: 20px;
-    margin: 20px auto;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
-    text-align: left;
+.controls button {
+    margin: 0 10px;
 }
 
-.how-to-use h2 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: #ff4747;
-}
-
-.how-to-use p {
+/* Back and Fullscreen Buttons */
+.back-btn, .fullscreen-btn {
+    position: absolute;
+    top: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
     font-size: 16px;
-    color: white;
-    margin-bottom: 10px;
-    line-height: 1.5;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.back-btn {
+    left: 10px;
+}
+
+.fullscreen-btn {
+    right: 10px;
 }
