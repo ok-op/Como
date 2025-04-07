@@ -22,7 +22,9 @@ function playCurrentVideo() {
     videoPlayer.src = apiURL;
 
     videoFrame.style.display = "block";
-    setTimeout(() => { videoFrame.classList.add("active"); }, 10);
+    setTimeout(() => {
+        videoFrame.classList.add("active");
+    }, 10);
 }
 
 function nextVideo() {
@@ -42,7 +44,9 @@ function prevVideo() {
 function goBack() {
     let videoFrame = document.getElementById("videoFrame");
     videoFrame.classList.remove("active");
-    setTimeout(() => { videoFrame.style.display = "none"; }, 300);
+    setTimeout(() => {
+        videoFrame.style.display = "none";
+    }, 300);
 }
 
 function toggleFullscreen() {
