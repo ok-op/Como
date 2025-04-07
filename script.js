@@ -2,58 +2,26 @@ let videoLinks = [];
 let currentIndex = 0;
 
 function startVideo() {
-    let inputText = document.getElementById("videoLinks").value.trim();
+    const inputText = document.getElementById("videoLinks").value.trim();
     videoLinks = inputText.split("\n").filter(link => link.trim() !== "");
 
     if (videoLinks.length === 0) {
-        alert("Please paste at least one valid link!");
+        alert("কমপক্ষে একটি ভিডিও লিংক দিন!");
         return;
     }
 
     currentIndex = 0;
 
-    // Hide main container and show video
-    document.querySelector(".container").style.display = "none";
-    document.querySelector(".how-to-use").style.display = "none";
+    // পুরো body ক্লিয়ার করে নতুন ভিডিও ফ্রেম দেখানো
+    document.body.innerHTML = '';
 
-    playCurrentVideo();
-}
+    // নতুন fullscreen ভিডিও ফ্রেম তৈরি
+    const videoFrame = document.createElement("div");
+    videoFrame.className = "video-frame active";
 
-function playCurrentVideo() {
-    let videoFrame = document.getElementById("videoFrame");
-    let videoPlayer = document.getElementById("videoPlayer");
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(videoLinks[currentIndex])}`;
 
-    let apiURL = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(videoLinks[currentIndex])}`;
-    videoPlayer.src = apiURL;
-
-    videoFrame.style.display = "flex";
-    setTimeout(() => {
-        videoFrame.classList.add("active");
-    }, 10);
-}
-
-function nextVideo() {
-    if (currentIndex < videoLinks.length - 1) {
-        currentIndex++;
-        playCurrentVideo();
-    }
-}
-
-function prevVideo() {
-    if (currentIndex > 0) {
-        currentIndex--;
-        playCurrentVideo();
-    }
-}
-
-function goBack() {
-    document.getElementById("videoFrame").classList.remove("active");
-    setTimeout(() => {
-        document.getElementById("videoFrame").style.display = "none";
-        document.getElementById("videoPlayer").src = "";
-
-        // Show main container again
-        document.querySelector(".container").style.display = "block";
-        document.querySelector(".how-to-use").style.display = "block";
-    }, 300);
+    videoFrame.appendChild(iframe);
+    document.body.appendChild(videoFrame);
 }
