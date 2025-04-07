@@ -21,7 +21,7 @@ function playCurrentVideo() {
     let apiURL = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=https://teraboxdownloaderonline.com/api/download-m3u8?terabox_link=${encodeURIComponent(videoLinks[currentIndex])}`;
     videoPlayer.src = apiURL;
 
-    videoFrame.style.display = "block";
+    videoFrame.style.display = "flex";
     setTimeout(() => {
         videoFrame.classList.add("active");
     }, 10);
@@ -46,10 +46,6 @@ function goBack() {
     videoFrame.classList.remove("active");
     setTimeout(() => {
         videoFrame.style.display = "none";
+        document.getElementById("videoPlayer").src = "";
     }, 300);
-}
-
-function toggleFullscreen() {
-    let videoFrame = document.getElementById("videoFrame");
-    videoFrame.classList.toggle("fullscreen");
 }
