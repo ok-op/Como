@@ -52,6 +52,42 @@
       gap: 10px;
       z-index: 10;
     }
+
+    .how-to-use {
+      text-align: center;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 800px;
+      background: #111;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+    
+    .step {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-align: left;
+      color: #fff;
+    }
+
+    .step1 {
+      background-color: #1e90ff;
+    }
+    
+    .step2 {
+      background-color: #28a745;
+    }
+    
+    .step3 {
+      background-color: #ffc107;
+      color: #000;
+    }
+    
+    .step4 {
+      background-color: #dc3545;
+    }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -77,10 +113,10 @@
   <!-- How to Use Section -->
   <div class="how-to-use" id="howToUse">
     <h2>How to Use This Mini Site</h2>
-    <p><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</p>
-    <p><strong>Step 2:</strong> Click the "Play Now" button to start playing.</p>
-    <p><strong>Step 3:</strong> Use the Previous (⏮) and Next (⏭) buttons to switch videos.</p>
-    <p><strong>Step 4:</strong> Click Back (⬅) to return to the link input page.</p>
+    <div class="step step1"><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</div>
+    <div class="step step2"><strong>Step 2:</strong> Click the "Play Now" button to start playing.</div>
+    <div class="step step3"><strong>Step 3:</strong> Use the Previous (⏮) and Next (⏭) buttons to switch videos.</div>
+    <div class="step step4"><strong>Step 4:</strong> Click Back (⬅) to return to the link input page.</div>
   </div>
 
   <!-- Script -->
