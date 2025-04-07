@@ -26,13 +26,12 @@
       font-size: 16px;
     }
 
-    button {
+    <!-- dbutton {
       padding: 6px 12px;
       margin-top: 6px;
       font-size: 13px;
       cursor: pointer;
-    }
-
+    } -->
     .play-button {
       padding: 10px 20px;
       font-size: 16px;
@@ -121,9 +120,9 @@
   <div id="playerSection">
     <iframe id="videoFrame" allowfullscreen></iframe>
     <div class="controls">
-      <button onclick="prevVideo()">⏮️ Previous</button>
-      <button onclick="nextVideo()">Next ⏭️</button>
-      <button onclick="backToInput()">← Back</button>
+      <button class="play-button" onclick="prevVideo()">⏮️ Previous</button>
+      <button class="play-button" onclick="nextVideo()">Next ⏭️</button>
+      <button class="play-button" onclick="backToInput()">← Back</button>
     </div>
   </div>
 
