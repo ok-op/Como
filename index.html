@@ -17,6 +17,20 @@
         </div>
     </div>
 
+    <div id="inputSection">
+    <textarea id="videoLinks" placeholder="Paste video links here..."></textarea>
+    <button onclick="startVideo()">Play Now</button>
+</div>
+
+<div id="playerSection" style="display: none;">
+    <iframe id="videoFrame"></iframe>
+    <div class="controls">
+        <button onclick="prevVideo()">⏮️ Previous</button>
+        <button onclick="nextVideo()">Next ⏭️</button>
+        <button onclick="backToInput()">← Back</button>
+    </div>
+</div>
+
     <div class="how-to-use">
         <h2>How to Use This Mini Site</h2>
         <p><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</p>
