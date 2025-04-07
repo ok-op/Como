@@ -1,42 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Multi - TeraBox Links To Video Player</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Multi - TeraBox Links To Video Player</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
 </head>
 <body oncontextmenu="return false;">
 
-  <div class="container">
-    <div class="input-box">
-      <h2>Online Player V2</h2>
-      <textarea id="videoLinks" placeholder="Paste Single & Multiple Links Here "></textarea>
-      <button onclick="startVideo()">Play Now</button>
+    <div class="container">
+        <div class="input-box">
+            <h2>Online Player V2</h2>
+            <textarea id="videoLinks" placeholder="Paste Single & Multiple Links Here"></textarea>
+            <button onclick="startVideo()">Play Now</button>
+        </div>
     </div>
-  </div>
 
-  <div class="how-to-use">
-    <h2>How to Use This Mini Site</h2>
-    <p><strong>Step 1:</strong> Copy and paste your video links into the input box above. Each link should be on a new line.</p>
-    <p><strong>Step 2:</strong> Click the "Play Now" button to start playing the videos.</p>
-    <p><strong>Step 3:</strong> Use the <strong>Previous (⏮)</strong> and <strong>Next (⏭)</strong> buttons to navigate between videos.</p>
-    <p><strong>Step 4:</strong> Click the <strong>Fullscreen (⛶)</strong> button to watch the video in full screen.</p>
-    <p><strong>Step 5:</strong> Click the <strong>Back (⬅)</strong> button to return to the main menu and paste new links.</p>
-    <p>This tool allows you to watch multiple videos from different links without opening separate tabs. Enjoy seamless video streaming!</p>
-  </div>
-
-  <div class="video-frame" id="videoFrame">
-    <button class="back-btn" onclick="goBack()">⬅</button>
-    <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
-    <iframe id="videoPlayer" allowfullscreen></iframe>
-
-    <div class="controls">
-      <button class="prev-btn" onclick="prevVideo()">⏮</button>
-      <button class="next-btn" onclick="nextVideo()">⏭</button>
+    <div class="how-to-use">
+        <h2>How to Use This Mini Site</h2>
+        <p><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</p>
+        <p><strong>Step 2:</strong> Click the "Play Now" button to start playing.</p>
+        <p><strong>Step 3:</strong> Use the Previous (⏮) and Next (⏭) buttons to switch videos.</p>
+        <p><strong>Step 4:</strong> Click Back (⬅) to return to the link input page.</p>
     </div>
-  </div>
+
+    <div class="video-frame" id="videoFrame">
+        <button class="back-btn" onclick="goBack()">⬅</button>
+        <iframe id="videoPlayer" allowfullscreen></iframe>
+        <div class="controls">
+            <button class="prev-btn" onclick="prevVideo()">⏮</button>
+            <button class="next-btn" onclick="nextVideo()">⏭</button>
+        </div>
+    </div>
 
 </body>
-        </html>
+</html>
