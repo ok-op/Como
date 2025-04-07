@@ -63,6 +63,12 @@ body {
     border: none;
 }
 
+#videoFrame {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+}
+
 .controls {
     margin-top: 15px;
 }
