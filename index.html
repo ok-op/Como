@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       font-family: sans-serif;
-      background: #111;
+      background: #000;
       color: #fff;
     }
 
@@ -50,6 +50,7 @@
       transform: translateX(-50%);
       display: flex;
       gap: 10px;
+      z-index: 10;
     }
   </style>
 </head>
@@ -73,8 +74,8 @@
     </div>
   </div>
 
-  <!-- How to Use -->
-  <div class="how-to-use">
+  <!-- How to Use Section -->
+  <div class="how-to-use" id="howToUse">
     <h2>How to Use This Mini Site</h2>
     <p><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</p>
     <p><strong>Step 2:</strong> Click the "Play Now" button to start playing.</p>
@@ -97,8 +98,14 @@
       }
 
       currentIndex = 0;
+
+      // Hide input & how-to-use sections
       document.getElementById("inputSection").style.display = "none";
+      document.getElementById("howToUse").style.display = "none";
+
+      // Show player section
       document.getElementById("playerSection").style.display = "block";
+
       updateVideo();
     }
 
@@ -125,6 +132,7 @@
     function backToInput() {
       document.getElementById("playerSection").style.display = "none";
       document.getElementById("inputSection").style.display = "block";
+      document.getElementById("howToUse").style.display = "block";
     }
   </script>
 </body>
