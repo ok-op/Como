@@ -33,6 +33,23 @@
       cursor: pointer;
     }
 
+    .play-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: linear-gradient(145deg, #1f1f1f, #2a2a2a);
+      border: 2px solid #00ffc8;
+      color: #fff;
+      border-radius: 8px;
+      box-shadow: 4px 4px 10px #0f0f0f, -4px -4px 10px #2e2e2e;
+      transition: all 0.3s ease;
+    }
+
+    .play-button:hover {
+      box-shadow: inset 2px 2px 5px #0a0a0a, inset -2px -2px 5px #3a3a3a;
+      background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+    }
+
     #playerSection {
       display: none;
     }
@@ -97,7 +114,7 @@
     <h2>Online Player V2</h2>
     <textarea id="videoLinks" placeholder="Paste Single & Multiple Links Here (one per line)"></textarea>
     <br />
-    <button onclick="startVideo()">Play Now</button>
+    <button class="play-button" onclick="startVideo()">Play Now</button>
   </div>
 
   <!-- Player Section -->
