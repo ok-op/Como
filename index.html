@@ -213,26 +213,26 @@
             <h2>Enter Password</h2>
             <input type="password" id="passwordInput" class="input-box" placeholder="Enter your password">
             <button class="show-password" onclick="togglePassword()">👁 Show Password</button>
-            <button class="btn" onclick="checkPassword()">Submit</button>
+            <button class="btn" onclick="checkPassword()"><i class="fa fa-unlock" aria-hidden="true"></i> Submit</button>
         </div>
     </div>
 
   <!-- Input Section -->
   <div class="container" id="inputSection">
-    <h2>Online Player v2</h2>
-    <p>Multi - TeraBox Links To Video Player</p>
+    <h2><i class="fa fa-video-camera" aria-hidden="true"></i> Online Player v2</h2>
+    <p><i class="fa fa-link" aria-hidden="true"></i> Multi - TeraBox Links To Video Player</p>
     <textarea id="videoLinks" placeholder="Paste Single & Multiple Links Here (one per line)"></textarea>
     <br />
-    <button class="play-button" onclick="startVideo()">Play Now</button>
+    <button class="play-button" onclick="startVideo()"><i class="fa fa-play" aria-hidden="true"></i> Play Now</button>
   </div>
 
   <!-- Player Section -->
   <div id="playerSection">
     <iframe id="videoFrame" allowfullscreen></iframe>
     <div class="controls">
-      <button class="play-button" onclick="prevVideo()">⏮️ Previous</button>
-      <button class="play-button" onclick="nextVideo()">Next ⏭️</button>
-      <button class="play-button" onclick="backToInput()">← Back</button>
+      <button class="play-button" onclick="prevVideo()"><i class="fa fa-backward" aria-hidden="true"></i> Previous</button>
+      <button class="play-button" onclick="nextVideo()">Next <i class="fa fa-forward" aria-hidden="true"></i></button>
+      <button class="play-button" onclick="backToInput()"><i class="fa fa-home" aria-hidden="true"></i> Back</button>
     </div>
   </div>
 
@@ -242,7 +242,7 @@
     <div class="step step1"><strong>Step 1:</strong> Paste your TeraBox video links in the input box (one per line).</div>
     <div class="step step2"><strong>Step 2:</strong> Click the "Play Now" button to start playing.</div>
     <div class="step step3"><strong>Step 3:</strong> Use the Previous (⏮) and Next (⏭) buttons to switch videos.</div>
-    <div class="step step4"><strong>Step 4:</strong> Click Back (⬅) to return to the home page.</div>
+    <div class="step step4"><strong>Step 4:</strong> Click Back (🏠) to return to the home page.</div>
   </div>
 
   <footer class="footer" id="footers">
