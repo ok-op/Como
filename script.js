@@ -11,6 +11,11 @@ function startVideo() {
     }
 
     currentIndex = 0;
+
+    // Hide main container and show video
+    document.querySelector(".container").style.display = "none";
+    document.querySelector(".how-to-use").style.display = "none";
+
     playCurrentVideo();
 }
 
@@ -42,10 +47,13 @@ function prevVideo() {
 }
 
 function goBack() {
-    let videoFrame = document.getElementById("videoFrame");
-    videoFrame.classList.remove("active");
+    document.getElementById("videoFrame").classList.remove("active");
     setTimeout(() => {
-        videoFrame.style.display = "none";
+        document.getElementById("videoFrame").style.display = "none";
         document.getElementById("videoPlayer").src = "";
+
+        // Show main container again
+        document.querySelector(".container").style.display = "block";
+        document.querySelector(".how-to-use").style.display = "block";
     }, 300);
 }
