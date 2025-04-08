@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player with PDF Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .upload-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .player-section {
+            display: flex;
+            gap: 20px;
+        }
+        .video-container {
+            flex: 2;
+            background-color: black;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .pdf-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 500px;
+            overflow: auto;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .video-info {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+        #videoPlayer {
+            width: 100%;
+            height: 500px;
+        }
+        #pdfViewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .playlist {
+            margin-top: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .playlist-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .playlist-item:hover {
+            background-color: #f9f9f9;
+        }
+        .playlist-item.active {
+            background-color: #e6f7ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-section">
+            <h2>Upload your video list file</h2>
+            <input type="file" id="fileInput" accept=".txt">
+            <button id="loadBtn">Load Videos</button>
+        </div>
+
+        <div class="video-info" id="videoInfo" style="display: none;">
+            <h3 id="videoTitle">No video loaded</h3>
+            <p id="videoIndex">0/0</p>
+        </div>
+
+        <div class="player-section">
+            <div class="video-container">
+                <video id="videoPlayer" controls></video>
+                <div class="controls">
+                    <button id="prevBtn">Previous</button>
+                    <button id="nextBtn">Next</button>
+                </div>
+            </div>
+            <div class="pdf-container">
+                <iframe id="pdfViewer" src="about:blank"></iframe>
+            </div>
+        </div>
+
+        <div class="playlist" id="playlist" style="display: none;">
+            <h3>Playlist</h3>
+            <div id="playlistItems"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const loadBtn = document.getElementById('loadBtn');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const pdfViewer = document.getElementById('pdfViewer');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const videoTitle = document.getElementById('videoTitle');
+            const videoIndex = document.getElementById('videoIndex');
+            const playlistItems = document.getElementById('playlistItems');
+            const videoInfo = document.getElementById('videoInfo');
+            const playlist = document.getElementById('playlist');
+
+            let videos = [];
+            let currentIndex = -1;
+
+            // Load videos from text file
+            loadBtn.addEventListener('click', function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('Please select a file first');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    parseVideoLinks(content);
+                };
+                reader.readAsText(file);
+            });
+
+            function parseVideoLinks(content) {
+                videos = [];
+                const lines = content.split('\n');
+                
+                let currentVideo = null;
+                
+                lines.forEach(line => {
+                    if (line.trim() === '') return;
+                    
+                    // Check if line contains a video or PDF
+                    const videoMatch = line.match(/(.+):(https?:\/\/.+\.m3u8)/);
+                    const pdfMatch = line.match(/(.+):(https?:\/\/.+\.pdf)/);
+                    
+                    if (videoMatch) {
+                        // New video entry
+                        if (currentVideo) {
+                            videos.push(currentVideo);
+                        }
+                        currentVideo = {
+                            title: videoMatch[1].trim(),
+                            videoUrl: videoMatch[2].trim(),
+                            pdfUrl: null
+                        };
+                    } else if (pdfMatch && currentVideo) {
+                        // PDF for current video
+                        currentVideo.pdfUrl = pdfMatch[2].trim();
+                    }
+                });
+                
+                // Add the last video if exists
+                if (currentVideo) {
+                    videos.push(currentVideo);
+                }
+                
+                if (videos.length > 0) {
+                    displayPlaylist();
+                    playVideo(0);
+                    videoInfo.style.display = 'block';
+                    playlist.style.display = 'block';
+                } else {
+                    alert('No valid video links found in the file');
+                }
+            }
+
+            function displayPlaylist() {
+                playlistItems.innerHTML = '';
+                videos.forEach((video, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'playlist-item';
+                    if (index === currentIndex) {
+                        item.classList.add('active');
+                    }
+                    item.textContent = video.title;
+                    item.addEventListener('click', () => {
+                        playVideo(index);
+                    });
+                    playlistItems.appendChild(item);
+                });
+            }
+
+            function playVideo(index) {
+                if (index < 0 || index >= videos.length) return;
+                
+                currentIndex = index;
+                const video = videos[currentIndex];
+                
+                // Update UI
+                videoTitle.textContent = video.title;
+                videoIndex.textContent = `${currentIndex + 1}/${videos.length}`;
+                
+                // Play video
+                videoPlayer.src = `https://pro-ultra-hd-stream-player.woodmirror.workers.dev/?start=${encodeURIComponent(video.videoUrl)}`;
+                videoPlayer.load();
+                videoPlayer.play().catch(e => console.log('Autoplay prevented:', e));
+                
+                // Load PDF if available
+                if (video.pdfUrl) {
+                    pdfViewer.src = `https://docs.google.com/gview?url=${encodeURIComponent(video.pdfUrl)}&embedded=true`;
+                } else {
+                    pdfViewer.src = 'about:blank';
+                }
+                
+                // Update playlist highlighting
+                const items = playlistItems.querySelectorAll('.playlist-item');
+                items.forEach((item, i) => {
+                    if (i === currentIndex) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // Update button states
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex === videos.length - 1;
+            }
+
+            // Navigation
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    playVideo(currentIndex - 1);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < videos.length - 1) {
+                    playVideo(currentIndex + 1);
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' && !prevBtn.disabled) {
+                    prevBtn.click();
+                } else if (e.key === 'ArrowRight' && !nextBtn.disabled) {
+                    nextBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+  </html>
