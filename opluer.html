@@ -93,6 +93,11 @@
             background-color: #e6f7ff;
             font-weight: bold;
         }
+        .status {
+            margin-top: 10px;
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +106,7 @@
             <h2>Upload your video list file</h2>
             <input type="file" id="fileInput" accept=".txt">
             <button id="loadBtn">Load Videos</button>
+            <div class="status" id="status"></div>
         </div>
 
         <div class="video-info" id="videoInfo" style="display: none;">
@@ -140,6 +146,7 @@
             const playlistItems = document.getElementById('playlistItems');
             const videoInfo = document.getElementById('videoInfo');
             const playlist = document.getElementById('playlist');
+            const status = document.getElementById('status');
 
             let videos = [];
             let currentIndex = -1;
@@ -163,15 +170,15 @@
             function parseVideoLinks(content) {
                 videos = [];
                 const lines = content.split('\n');
-                
                 let currentVideo = null;
+                let ignoredCount = 0;
                 
                 lines.forEach(line => {
                     if (line.trim() === '') return;
                     
-                    // Check if line contains a video or PDF
-                    const videoMatch = line.match(/(.+):(https?:\/\/.+\.m3u8)/);
-                    const pdfMatch = line.match(/(.+):(https?:\/\/.+\.pdf)/);
+                    // Check if line contains a video (.m3u8) or PDF (.pdf)
+                    const videoMatch = line.match(/(https?:\/\/.+\.m3u8)/i);
+                    const pdfMatch = line.match(/(https?:\/\/.+\.pdf)/i);
                     
                     if (videoMatch) {
                         // New video entry
@@ -179,13 +186,21 @@
                             videos.push(currentVideo);
                         }
                         currentVideo = {
-                            title: videoMatch[1].trim(),
-                            videoUrl: videoMatch[2].trim(),
+                            title: line.split(':')[0]?.trim() || `Video ${videos.length + 1}`,
+                            videoUrl: videoMatch[1].trim(),
                             pdfUrl: null
                         };
-                    } else if (pdfMatch && currentVideo) {
+                    } else if (pdfMatch) {
                         // PDF for current video
-                        currentVideo.pdfUrl = pdfMatch[2].trim();
+                        if (currentVideo) {
+                            currentVideo.pdfUrl = pdfMatch[1].trim();
+                        } else {
+                            // PDF without video - we'll ignore it
+                            ignoredCount++;
+                        }
+                    } else {
+                        // Not a video or PDF - ignore
+                        ignoredCount++;
                     }
                 });
                 
@@ -199,8 +214,10 @@
                     playVideo(0);
                     videoInfo.style.display = 'block';
                     playlist.style.display = 'block';
+                    status.textContent = `Loaded ${videos.length} videos. Ignored ${ignoredCount} non-video/PDF links.`;
                 } else {
-                    alert('No valid video links found in the file');
+                    status.textContent = `No valid video links found. Found ${ignoredCount} non-video/PDF links.`;
+                    alert('No valid .m3u8 video links found in the file');
                 }
             }
 
@@ -281,4 +298,4 @@
         });
     </script>
 </body>
-  </html>
+</html>
