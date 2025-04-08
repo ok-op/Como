@@ -5,114 +5,265 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Player with PDF Viewer</title>
     <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --danger-color: #ea4335;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --border-radius: 6px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
         }
+        
         .container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
+        
         .upload-section {
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
+        
+        .upload-section h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .file-input-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .file-input-container input[type="file"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: var(--light-gray);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button i {
+            font-size: 1rem;
+        }
+        
+        #loadBtn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        #loadBtn:hover {
+            background-color: #3367d6;
+        }
+        
+        #prevBtn, #nextBtn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        #prevBtn:hover, #nextBtn:hover {
+            background-color: #2d9249;
+        }
+        
+        button:disabled {
+            background-color: var(--dark-gray);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
         .player-section {
             display: flex;
-            gap: 20px;
+            gap: 25px;
         }
+        
         .video-container {
             flex: 2;
-            background-color: black;
-            border-radius: 8px;
+            background-color: #000;
+            border-radius: var(--border-radius);
             overflow: hidden;
+            box-shadow: var(--box-shadow);
         }
+        
         .pdf-container {
             flex: 1;
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             height: 500px;
-            overflow: auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
+        
+        .pdf-header {
+            padding: 12px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+        
         .controls {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #eee;
         }
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
+        
         .video-info {
             background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             margin-top: 10px;
         }
+        
         #videoPlayer {
             width: 100%;
             height: 500px;
             background-color: #000;
         }
+        
         #pdfViewer {
             width: 100%;
             height: 100%;
             border: none;
+            flex-grow: 1;
         }
+        
         .playlist {
             margin-top: 20px;
             background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
+        
+        .playlist h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .playlist-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
         .playlist-item {
-            padding: 8px;
+            padding: 12px 15px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
+            transition: background-color 0.2s ease;
         }
+        
         .playlist-item:hover {
-            background-color: #f9f9f9;
+            background-color: #f5f5f5;
         }
+        
         .playlist-item.active {
-            background-color: #e6f7ff;
-            font-weight: bold;
+            background-color: #e3f2fd;
+            font-weight: 500;
+            color: var(--primary-color);
         }
+        
+        .status-messages {
+            margin-top: 15px;
+        }
+        
         .status {
-            margin-top: 10px;
-            color: #666;
-            font-style: italic;
+            padding: 10px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
         }
+        
         .error {
-            color: red;
-            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffebee;
+            color: var(--danger-color);
+            border-radius: var(--border-radius);
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .player-section {
+                flex-direction: column;
+            }
+            
+            #videoPlayer, .pdf-container {
+                height: 400px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="upload-section">
             <h2>Upload your video list file</h2>
-            <input type="file" id="fileInput" accept=".txt">
-            <button id="loadBtn">Load Videos</button>
-            <div class="status" id="status"></div>
-            <div class="error" id="error"></div>
+            <div class="file-input-container">
+                <input type="file" id="fileInput" accept=".txt">
+                <div class="button-group">
+                    <button id="loadBtn">
+                        <i class="fas fa-upload"></i> Load Videos
+                    </button>
+                </div>
+            </div>
+            <div class="status-messages">
+                <div class="status" id="status"></div>
+                <div class="error" id="error"></div>
+            </div>
         </div>
 
         <div class="video-info" id="videoInfo" style="display: none;">
@@ -124,18 +275,25 @@
             <div class="video-container">
                 <video id="videoPlayer" controls></video>
                 <div class="controls">
-                    <button id="prevBtn">Previous</button>
-                    <button id="nextBtn">Next</button>
+                    <button id="prevBtn">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button id="nextBtn">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
             <div class="pdf-container">
+                <div class="pdf-header">
+                    <i class="fas fa-file-pdf"></i> PDF Viewer
+                </div>
                 <iframe id="pdfViewer" src="about:blank"></iframe>
             </div>
         </div>
 
         <div class="playlist" id="playlist" style="display: none;">
-            <h3>Playlist</h3>
-            <div id="playlistItems"></div>
+            <h3><i class="fas fa-list"></i> Playlist</h3>
+            <div class="playlist-items" id="playlistItems"></div>
         </div>
     </div>
 
@@ -166,11 +324,26 @@
                     return;
                 }
 
+                // Show loading state
+                loadBtn.innerHTML = '<span class="spinner"></span> Loading...';
+                loadBtn.disabled = true;
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const content = e.target.result;
                     parseVideoLinks(content);
+                    
+                    // Reset button state
+                    loadBtn.innerHTML = '<i class="fas fa-upload"></i> Load Videos';
+                    loadBtn.disabled = false;
                 };
+                
+                reader.onerror = function() {
+                    showError('Error reading file');
+                    loadBtn.innerHTML = '<i class="fas fa-upload"></i> Load Videos';
+                    loadBtn.disabled = false;
+                };
+                
                 reader.readAsText(file);
             });
 
@@ -251,7 +424,15 @@
                     if (index === currentIndex) {
                         item.classList.add('active');
                     }
-                    item.textContent = video.title;
+                    
+                    // Add icon based on content
+                    const icon = document.createElement('i');
+                    icon.className = video.pdfUrl ? 'fas fa-film' : 'fas fa-video';
+                    icon.style.marginRight = '8px';
+                    
+                    item.appendChild(icon);
+                    item.appendChild(document.createTextNode(video.title));
+                    
                     item.addEventListener('click', () => {
                         playVideo(index);
                     });
