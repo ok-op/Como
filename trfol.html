@@ -119,12 +119,19 @@
   </div>
 
   <script>
+    // List of CORS proxies to try
+    const CORS_PROXIES = [
+      'https://api.allorigins.win/get?url=',
+      'https://cors-anywhere.herokuapp.com/',
+      'https://thingproxy.freeboard.io/fetch/',
+      'https://yacdn.org/proxy/'
+    ];
+
     async function generateLinks() {
       const link = document.getElementById("linkInput").value.trim();
       const loading = document.getElementById("loading");
       const result = document.getElementById("result");
       
-      // Clear previous results
       result.innerHTML = "";
       loading.style.display = "block";
       
@@ -135,34 +142,36 @@
       }
       
       try {
-        // Using only your working API endpoint
         const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
         
-        // Enhanced fetch request with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+        // Try direct connection first
+        let responseData = await tryFetch(apiUrl);
         
-        const response = await fetch(apiUrl, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json'
+        // If direct fails, try through CORS proxies
+        if (!responseData) {
+          for (const proxy of CORS_PROXIES) {
+            try {
+              responseData = await tryFetch(proxy + encodeURIComponent(apiUrl));
+              if (responseData) break;
+            } catch (e) {
+              console.log(`Proxy ${proxy} failed, trying next...`);
+            }
           }
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
         }
         
-        const responseData = await response.json();
+        if (!responseData) {
+          throw new Error("All connection attempts failed");
+        }
         
-        // Check if API returned success status
+        // Handle proxy responses that wrap the original response
+        if (responseData.contents) {
+          responseData = JSON.parse(responseData.contents);
+        }
+        
         if (!responseData || responseData.status !== "✅ Success") {
           throw new Error("API did not return success status");
         }
         
-        // Extract files from response
         const files = responseData["📋 Extracted Info"] || [];
         
         if (!files.length) {
@@ -176,19 +185,41 @@
         let errorMessage = "Failed to generate download links. ";
         
         if (error.name === "AbortError") {
-          errorMessage += "Request timed out (10 seconds).";
+          errorMessage += "Request timed out.";
         } else if (error.message.includes("Failed to fetch")) {
-          errorMessage += "Network error. Please check:";
-          errorMessage += "<br>1. Your internet connection";
-          errorMessage += "<br>2. If the API is blocked by your network";
-          errorMessage += "<br>3. Try refreshing the page";
+          errorMessage += "Network error. Possible CORS issue.";
         } else {
           errorMessage += error.message;
         }
         
-        showError(errorMessage);
+        showError(errorMessage + "<br>Try refreshing or check console for details.");
       } finally {
         loading.style.display = "none";
+      }
+    }
+    
+    async function tryFetch(url) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
       }
     }
     
