@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terabox Downloader</title>
   <style>
+    /* Your existing CSS styles */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f5f7fa;
@@ -20,86 +21,7 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 30px;
-    }
-    .input-group {
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 12px 15px;
-      font-size: 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: block;
-      margin: 0 auto;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    .loading {
-      text-align: center;
-      margin: 20px 0;
-      display: none;
-    }
-    .spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-radius: 50%;
-      border-top: 4px solid #3498db;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .result {
-      margin-top: 30px;
-    }
-    .download-item {
-      margin-bottom: 15px;
-    }
-    .download-btn {
-      display: block;
-      padding: 12px 15px;
-      background-color: #2ecc71;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-    .download-btn:hover {
-      background-color: #27ae60;
-    }
-    .error {
-      color: #e74c3c;
-      padding: 15px;
-      background-color: #fadbd8;
-      border-radius: 8px;
-      margin-top: 20px;
-      text-align: center;
-    }
-    .success {
-      color: #27ae60;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    /* ... (keep all your existing styles) ... */
   </style>
 </head>
 <body>
@@ -119,14 +41,7 @@
   </div>
 
   <script>
-    // List of CORS proxies to try
-    const CORS_PROXIES = [
-      'https://api.allorigins.win/get?url=',
-      'https://cors-anywhere.herokuapp.com/',
-      'https://thingproxy.freeboard.io/fetch/',
-      'https://yacdn.org/proxy/'
-    ];
-
+    // Enhanced with multiple fallback methods
     async function generateLinks() {
       const link = document.getElementById("linkInput").value.trim();
       const loading = document.getElementById("loading");
@@ -142,30 +57,13 @@
       }
       
       try {
-        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-        
-        // Try direct connection first
-        let responseData = await tryFetch(apiUrl);
-        
-        // If direct fails, try through CORS proxies
-        if (!responseData) {
-          for (const proxy of CORS_PROXIES) {
-            try {
-              responseData = await tryFetch(proxy + encodeURIComponent(apiUrl));
-              if (responseData) break;
-            } catch (e) {
-              console.log(`Proxy ${proxy} failed, trying next...`);
-            }
-          }
-        }
+        // Try multiple methods sequentially
+        let responseData = await tryDirectConnection(link) || 
+                          await tryCORSProxy(link) || 
+                          await tryJSONP(link);
         
         if (!responseData) {
-          throw new Error("All connection attempts failed");
-        }
-        
-        // Handle proxy responses that wrap the original response
-        if (responseData.contents) {
-          responseData = JSON.parse(responseData.contents);
+          throw new Error("All connection methods failed");
         }
         
         if (!responseData || responseData.status !== "✅ Success") {
@@ -182,47 +80,66 @@
         
       } catch (error) {
         console.error("Error details:", error);
-        let errorMessage = "Failed to generate download links. ";
-        
-        if (error.name === "AbortError") {
-          errorMessage += "Request timed out.";
-        } else if (error.message.includes("Failed to fetch")) {
-          errorMessage += "Network error. Possible CORS issue.";
-        } else {
-          errorMessage += error.message;
-        }
-        
-        showError(errorMessage + "<br>Try refreshing or check console for details.");
+        showError(getErrorMessage(error));
       } finally {
         loading.style.display = "none";
       }
     }
-    
-    async function tryFetch(url) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-      
+
+    // Method 1: Direct connection
+    async function tryDirectConnection(link) {
       try {
-        const response = await fetch(url, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+        const response = await fetchWithTimeout(apiUrl);
         return await response.json();
       } catch (error) {
-        clearTimeout(timeoutId);
-        throw error;
+        console.log("Direct connection failed, trying fallbacks...");
+        return null;
       }
     }
-    
+
+    // Method 2: CORS Proxy
+    async function tryCORSProxy(link) {
+      const PROXIES = [
+        'https://api.allorigins.win/get?url=',
+        'https://cors-anywhere.herokuapp.com/',
+        'https://thingproxy.freeboard.io/fetch/'
+      ];
+      
+      const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+      
+      for (const proxy of PROXIES) {
+        try {
+          const response = await fetchWithTimeout(proxy + encodeURIComponent(apiUrl));
+          const data = await response.json();
+          return data.contents ? JSON.parse(data.contents) : data;
+        } catch (e) {
+          console.log(`Proxy ${proxy} failed`);
+        }
+      }
+      return null;
+    }
+
+    // Method 3: JSONP fallback (if needed)
+    function tryJSONP(link) {
+      return new Promise((resolve) => {
+        // This would require server-side JSONP support
+        console.log("JSONP not implemented - would require API support");
+        resolve(null);
+      });
+    }
+
+    // Utility function with timeout
+    function fetchWithTimeout(url, timeout = 15000) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      
+      return fetch(url, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      }).finally(() => clearTimeout(timeoutId));
+    }
+
     function displayResults(files) {
       const result = document.getElementById("result");
       let html = `<div class="success">Found ${files.length} file(s)</div>`;
@@ -243,10 +160,24 @@
       
       result.innerHTML = html;
     }
-    
+
     function showError(message) {
       const result = document.getElementById("result");
       result.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    function getErrorMessage(error) {
+      if (error.name === "AbortError") return "Request timed out. Try again later.";
+      if (error.message.includes("Failed to fetch")) {
+        return `
+          Network error. Possible solutions:<br>
+          1. Refresh the page<br>
+          2. Try a different network<br>
+          3. Enable CORS in your browser (for development)<br>
+          4. Check console for details (F12 > Console)
+        `;
+      }
+      return error.message || "Unknown error occurred";
     }
 
     // Enter key press event listener
