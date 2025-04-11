@@ -280,113 +280,89 @@
     <div id="result" class="result"></div>
   </div>
   <script>
-    async function generateLinks() {
-      const link = document.getElementById("linkInput").value.trim();
-      const loading = document.getElementById("loading");
-      const result = document.getElementById("result");
+  async function generateLinks() {
+    const link = document.getElementById("linkInput").value.trim();
+    const loading = document.getElementById("loading");
+    const result = document.getElementById("result");
+    result.innerHTML = "";
+    loading.style.display = "block";
 
-      result.innerHTML = "";
-      loading.style.display = "block";
-
-      if (!link) {
-        showError("Please enter a Terabox link!");
-        loading.style.display = "none";
-        return;
-      }
-
-      try {
-        const responseData = await tryDirectConnection(link);
-
-        if (!responseData || responseData.status !== "✅ Success") {
-          throw new Error("Could not fetch download links. Try another link.");
-        }
-
-        const files = responseData["📋 Extracted Info"] || [];
-        if (!files.length) throw new Error("No downloadable files found.");
-
-        displayResults(files);
-      } catch (error) {
-        console.error(error);
-        showError(getErrorMessage(error));
-      } finally {
-        loading.style.display = "none";
-      }
+    if (!link) {
+      showError("Please enter a Terabox link!");
+      loading.style.display = "none";
+      return;
     }
 
-    async function tryDirectConnection(link) {
-      try {
-        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-        const response = await fetchWithTimeout(apiUrl);
-        return await response.json();
-      } catch (error) {
-        throw new Error("Direct connection failed. Please check your internet connection.");
+    try {
+      const responseData = await tryDirectConnection(link);
+
+      if (!responseData || responseData.status !== "✅ Success") {
+        throw new Error("Could not fetch download links. Try another link.");
       }
-    }
 
-    function fetchWithTimeout(url, timeout = 15000) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-      return fetch(url, {
-        signal: controller.signal,
-        headers: { 'Accept': 'application/json' }
-      }).finally(() => clearTimeout(timeoutId));
-    }
+      const files = responseData["📋 Extracted Info"] || [];
+      if (!files.length) throw new Error("No downloadable files found.");
 
-    function displayResults(files) {
-      const result = document.getElementById("result");
-      let html = `
-        <div class="alert alert-success fade-in">
-          <i class="fas fa-check-circle"></i>
-          Found ${files.length} file(s) ready for download
+      displayResults(files);
+    } catch (error) {
+      console.error(error);
+      showError(getErrorMessage(error));
+    } finally {
+      loading.style.display = "none";
+    }
+  }
+
+  async function tryDirectConnection(link) {
+    try {
+      const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+      const response = await fetchWithTimeout(apiUrl);
+      return await response.json();
+    } catch (error) {
+      throw new Error("Direct connection failed. Please check your internet connection.");
+    }
+  }
+
+  function fetchWithTimeout(url, timeout = 15000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    return fetch(url, {
+      signal: controller.signal,
+      headers: { 'Accept': 'application/json' }
+    }).finally(() => clearTimeout(timeoutId));
+  }
+
+  function displayResults(files) {
+    const result = document.getElementById("result");
+    let html = `<div class="alert alert-success fade-in">
+      <i class="fas fa-check-circle"></i> Found ${files.length} file(s).
+    </div><div class="download-list">`;
+
+    files.forEach((file, i) => {
+      html += `<div class="download-item fade-in">
+        <div class="file-info">
+          <div class="file-name">${file.name}</div>
+          <div class="file-size">${file.size}</div>
         </div>
-        <div class="download-list">
-      `;
-      
-      files.forEach((file, index) => {
-        const fileName = file["📄 Title"] || `File ${index + 1}`;
-        const fileSize = file["📦 Size"] || "Unknown size";
-        const downloadLink = file["🔗 Direct Download Link"] || "#";
-        
-        // Cycle through different button colors
-        const btnClass = `btn-download-${(index % 6) + 1}`;
-
-        html += `
-          <div class="download-item fade-in" style="animation-delay: ${index * 0.1}s">
-            <div class="file-info">
-              <div class="file-name">${fileName}</div>
-              <div class="file-size">${fileSize}</div>
-            </div>
-            <a href="${downloadLink}" target="_blank" class="download-btn ${btnClass}">
-              <i class="fas fa-download"></i> Download
-            </a>
-          </div>
-        `;
-      });
-      
-      html += `</div>`;
-      result.innerHTML = html;
-    }
-
-    function showError(message) {
-      document.getElementById("result").innerHTML = `
-        <div class="alert alert-error fade-in">
-          <i class="fas fa-exclamation-circle"></i>
-          ${message}
-        </div>
-      `;
-    }
-
-    function getErrorMessage(error) {
-      if (error.name === "AbortError") return "Request timed out. Try again later.";
-      if (error.message.includes("Failed to fetch")) {
-        return "Network error. Please check your internet connection.";
-      }
-      return error.message || "Unknown error occurred.";
-    }
-
-    document.getElementById("linkInput").addEventListener("keypress", function(event) {
-      if (event.key === "Enter") generateLinks();
+        <a href="${file.download_url}" class="download-btn btn-download-${(i % 6) + 1}" download>
+          <i class="fas fa-download"></i> Download
+        </a>
+      </div>`;
     });
-  </script>
+
+    html += `</div>`;
+    result.innerHTML = html;
+  }
+
+  function showError(message) {
+    const result = document.getElementById("result");
+    result.innerHTML = `<div class="alert alert-error fade-in">
+      <i class="fas fa-exclamation-triangle"></i> ${message}
+    </div>`;
+  }
+
+  function getErrorMessage(error) {
+    return error.message || "An unknown error occurred.";
+  }
+                            </script>
 </body>
 </html>
