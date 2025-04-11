@@ -1,196 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terabox Downloader</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #4361ee;
-      --secondary: #3f37c9;
-      --accent: #4895ef;
-      --success: #4cc9f0;
-      --danger: #f72585;
-      --dark: #212529;
-    }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: var(--dark);
+      background: #f0f2f5;
+      padding: 40px;
     }
     .container {
-      width: 90%;
-      max-width: 800px;
+      max-width: 700px;
+      margin: auto;
       background: white;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
     h1 {
       text-align: center;
-      color: var(--primary);
-      margin-bottom: 30px;
-      font-weight: 700;
-      font-size: 2.5rem;
-    }
-    .input-group {
-      display: flex;
-      margin-bottom: 30px;
-      gap: 10px;
+      color: #3f37c9;
     }
     input[type="text"] {
-      flex: 1;
-      padding: 15px 20px;
+      width: 100%;
+      padding: 15px;
       font-size: 16px;
-      border: 2px solid #e9ecef;
-      border-radius: 12px;
-      outline: none;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 20px;
     }
-    .btn {
-      padding: 15px 30px;
+    button {
+      margin-top: 15px;
+      padding: 12px 20px;
       font-size: 16px;
-      font-weight: 600;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      background-color: #4361ee;
       color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
-    .loading {
+    #loading {
       display: none;
       text-align: center;
-      margin: 30px 0;
-    }
-    .spinner {
-      border: 5px solid rgba(67, 97, 238, 0.1);
-      border-top: 5px solid var(--primary);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      margin: 0 auto 20px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      margin: 20px 0;
     }
     .result {
-      margin-top: 30px;
+      margin-top: 20px;
     }
-    .download-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-      padding: 15px 20px;
+    .file {
+      background: #f9f9f9;
+      padding: 15px;
       border-radius: 12px;
+      display: flex;
+      align-items: center;
       margin-bottom: 15px;
-      border-left: 4px solid var(--accent);
+      gap: 15px;
     }
-    .download-btn {
-      padding: 10px 20px;
-      background: var(--success);
-      color: #fff;
-      text-decoration: none;
+    .file img {
+      width: 80px;
+      height: auto;
       border-radius: 8px;
+    }
+    .file-info {
+      flex: 1;
+    }
+    .file-title {
+      font-weight: bold;
+    }
+    .file-size {
+      color: gray;
+      font-size: 14px;
+    }
+    .download-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #4cc9f0;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1><i class="fas fa-cloud-download-alt"></i> Terabox Downloader</h1>
-    <div class="input-group">
-      <input type="text" id="linkInput" placeholder="টেরাবক্স লিংক পেস্ট করুন..." />
-      <button class="btn" onclick="generateLinks()">
-        <i class="fas fa-bolt"></i> লিংক জেনারেট করুন
-      </button>
-    </div>
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p>লিংক তৈরি করা হচ্ছে, অপেক্ষা করুন...</p>
-    </div>
-    <div id="result" class="result"></div>
+    <h1>Terabox Downloader</h1>
+    <input type="text" id="linkInput" placeholder="এখানে Terabox লিংক দিন..." />
+    <button onclick="generateLinks()">লিংক জেনারেট করুন</button>
+
+    <div id="loading">লিংক প্রসেস করা হচ্ছে...</div>
+    <div class="result" id="result"></div>
   </div>
 
   <script>
     async function generateLinks() {
       const link = document.getElementById("linkInput").value.trim();
-      const loading = document.getElementById("loading");
       const result = document.getElementById("result");
+      const loading = document.getElementById("loading");
+
       result.innerHTML = "";
       loading.style.display = "block";
 
       if (!link) {
-        alert("লিংক ইনপুট দিন!");
+        alert("অনুগ্রহ করে একটি লিংক দিন!");
         loading.style.display = "none";
         return;
       }
 
       try {
-        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-        
-        // 15 সেকেন্ড টাইমআউট যোগ করা হয়েছে
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-        const response = await fetch(apiUrl, {
-          signal: controller.signal,
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-        clearTimeout(timeoutId);
-
+        const apiURL = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+        const response = await fetch(apiURL);
         const data = await response.json();
 
-        if (!response.ok || data.status !== "✅ Success" || !data["📋 Extracted Info"]?.length) {
-          throw new Error(data.message || "ডাউনলোড লিংক জেনারেট করতে ব্যর্থ");
+        if (data.status !== "✅ Success") {
+          throw new Error("API থেকে সফল রেসপন্স পাওয়া যায়নি।");
         }
 
         const files = data["📋 Extracted Info"];
-        
+        if (!files.length) {
+          throw new Error("কোনো ফাইল পাওয়া যায়নি।");
+        }
+
         files.forEach(file => {
-          const item = document.createElement("div");
-          item.className = "download-item";
+          const div = document.createElement("div");
+          div.className = "file";
 
-          const info = document.createElement("div");
-          info.innerHTML = `
-            <strong>${file["📄 Title"]}</strong>
-            <small>${file["📦 Size"]}</small>
-          `;
+          const thumbURL = file["🖼️ Thumbnails"] ? Object.values(file["🖼️ Thumbnails"])[0] : "";
+          const title = file["📄 Title"];
+          const size = file["📦 Size"];
+          const downloadLink = file["🔗 Direct Download Link"];
 
-          const downloadBtn = document.createElement("a");
-          downloadBtn.href = file["🔗 Direct Download Link"];
-          downloadBtn.className = "download-btn";
-          downloadBtn.innerHTML = `<i class="fas fa-download"></i> ডাউনলোড`;
-          downloadBtn.target = "_blank";
-          downloadBtn.rel = "noopener noreferrer";
-
-          // থাম্বনেইল প্রিভিউ যোগ করা হয়েছে
-          if(file["🖼️ Thumbnails"]) {
-            const thumb = document.createElement("img");
-            thumb.src = Object.values(file["🖼️ Thumbnails"])[0];
-            thumb.style.maxWidth = "100px";
-            thumb.style.borderRadius = "8px";
-            info.prepend(thumb);
+          if (thumbURL) {
+            const img = document.createElement("img");
+            img.src = thumbURL;
+            div.appendChild(img);
           }
 
-          item.append(info, downloadBtn);
-          result.appendChild(item);
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "file-info";
+          infoDiv.innerHTML = `
+            <div class="file-title">${title}</div>
+            <div class="file-size">${size}</div>
+            <a href="${downloadLink}" class="download-link" target="_blank">ডাউনলোড করুন</a>
+          `;
+
+          div.appendChild(infoDiv);
+          result.appendChild(div);
         });
 
-      } catch (error) {
-        console.error("Error:", error);
-        alert(`ত্রুটি: ${error.message || "API সংযোগ ব্যর্থ"}`);
+      } catch (err) {
+        console.error(err);
+        result.innerHTML = `<p style="color:red;">ত্রুটি: ${err.message}</p>`;
       } finally {
         loading.style.display = "none";
       }
