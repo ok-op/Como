@@ -4,113 +4,274 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terabox Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --info: #7209b7;
+      --light: #f8f9fa;
+      --dark: #212529;
+    }
+    
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #eaeff5;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       margin: 0;
-      padding: 30px;
-      color: #333;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--dark);
     }
+    
     .container {
-      max-width: 700px;
-      margin: auto;
-      background: #fff;
+      width: 90%;
+      max-width: 800px;
+      background: white;
       padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
+    
     h1 {
       text-align: center;
-      color: #2c3e50;
+      color: var(--primary);
+      margin-bottom: 30px;
+      font-weight: 700;
+      font-size: 2.5rem;
+      background: linear-gradient(to right, #4361ee, #3f37c9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+    
     .input-group {
       display: flex;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
+      gap: 10px;
     }
+    
     input[type="text"] {
       flex: 1;
-      padding: 14px;
+      padding: 15px 20px;
       font-size: 16px;
-      border: 2px solid #ccc;
-      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
       outline: none;
-      transition: border-color 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
+    
     input[type="text"]:focus {
-      border-color: #2980b9;
+      border-color: var(--accent);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
     }
-    button {
-      padding: 14px 24px;
-      margin-left: 10px;
-      background-color: #3498db;
-      border: none;
-      color: white;
+    
+    .btn {
+      padding: 15px 30px;
       font-size: 16px;
-      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    button:hover {
-      background-color: #2980b9;
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
     }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
     .loading {
       display: none;
       text-align: center;
-      margin: 20px 0;
+      margin: 30px 0;
     }
+    
     .spinner {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #3498db;
+      border: 5px solid rgba(67, 97, 238, 0.1);
+      border-top: 5px solid var(--primary);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      margin: 0 auto;
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 20px;
       animation: spin 1s linear infinite;
     }
+    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    
     .result {
-      margin-top: 20px;
+      margin-top: 30px;
     }
-    .success, .error {
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      border-radius: 6px;
+    
+    .alert {
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .success {
-      background-color: #e0f7e9;
-      color: #2e7d32;
+    
+    .alert-success {
+      background: linear-gradient(135deg, rgba(76, 201, 240, 0.2) 0%, rgba(76, 201, 240, 0.1) 100%);
+      color: #0a9396;
+      border-left: 4px solid #0a9396;
     }
-    .error {
-      background-color: #fdecea;
-      color: #c0392b;
+    
+    .alert-error {
+      background: linear-gradient(135deg, rgba(247, 37, 133, 0.2) 0%, rgba(247, 37, 133, 0.1) 100%);
+      color: #ae2012;
+      border-left: 4px solid #ae2012;
     }
+    
+    .download-list {
+      display: grid;
+      gap: 15px;
+    }
+    
     .download-item {
-      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--accent);
     }
+    
+    .download-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .file-info {
+      flex: 1;
+    }
+    
+    .file-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--dark);
+    }
+    
+    .file-size {
+      font-size: 14px;
+      color: #6c757d;
+    }
+    
     .download-btn {
-      display: inline-block;
       padding: 10px 20px;
-      background-color: #27ae60;
+      background: linear-gradient(135deg, var(--success) 0%, #4cc9f0 100%);
       color: white;
       text-decoration: none;
-      border-radius: 6px;
-      transition: background-color 0.3s ease;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 6px rgba(76, 201, 240, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
+    
     .download-btn:hover {
-      background-color: #219150;
+      background: linear-gradient(135deg, #3aa8d8 0%, #4cc9f0 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(76, 201, 240, 0.3);
     }
+    
+    .download-btn i {
+      font-size: 14px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        padding: 25px;
+        width: 95%;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        margin-top: 10px;
+      }
+      
+      .download-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .download-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+    }
+    
+    /* Animation classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Color variants for download buttons */
+    .btn-download-1 { background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); }
+    .btn-download-2 { background: linear-gradient(135deg, #7209b7 0%, #560bad 100%); }
+    .btn-download-3 { background: linear-gradient(135deg, #f72585 0%, #b5179e 100%); }
+    .btn-download-4 { background: linear-gradient(135deg, #4895ef 0%, #4361ee 100%); }
+    .btn-download-5 { background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%); }
+    .btn-download-6 { background: linear-gradient(135deg, #f8961e 0%, #f3722c 100%); }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="container">
-    <h1>Terabox Downloader</h1>
+    <h1><i class="fas fa-cloud-download-alt"></i> Terabox Downloader</h1>
     <div class="input-group">
-      <input type="text" id="linkInput" placeholder="Enter Terabox folder or file link..." />
-      <button onclick="generateLinks()">Generate</button>
+      <input type="text" id="linkInput" placeholder="Paste Terabox file or folder link here..." />
+      <button class="btn btn-primary" onclick="generateLinks()">
+        <i class="fas fa-bolt"></i> Generate Links
+      </button>
     </div>
     <div id="loading" class="loading">
       <div class="spinner"></div>
@@ -202,31 +363,52 @@
 
     function displayResults(files) {
       const result = document.getElementById("result");
-      let html = `<div class="success">Found ${files.length} file(s)</div>`;
+      let html = `
+        <div class="alert alert-success fade-in">
+          <i class="fas fa-check-circle"></i>
+          Found ${files.length} file(s) ready for download
+        </div>
+        <div class="download-list">
+      `;
+      
       files.forEach((file, index) => {
         const fileName = file["📄 Title"] || `File ${index + 1}`;
         const fileSize = file["📦 Size"] || "Unknown size";
         const downloadLink = file["🔗 Direct Download Link"] || "#";
+        
+        // Cycle through different button colors
+        const btnClass = `btn-download-${(index % 6) + 1}`;
 
         html += `
-          <div class="download-item">
-            <a href="${downloadLink}" target="_blank" class="download-btn">
-              ${fileName} (${fileSize})
+          <div class="download-item fade-in" style="animation-delay: ${index * 0.1}s">
+            <div class="file-info">
+              <div class="file-name">${fileName}</div>
+              <div class="file-size">${fileSize}</div>
+            </div>
+            <a href="${downloadLink}" target="_blank" class="download-btn ${btnClass}">
+              <i class="fas fa-download"></i> Download
             </a>
           </div>
         `;
       });
+      
+      html += `</div>`;
       result.innerHTML = html;
     }
 
     function showError(message) {
-      document.getElementById("result").innerHTML = `<div class="error">${message}</div>`;
+      document.getElementById("result").innerHTML = `
+        <div class="alert alert-error fade-in">
+          <i class="fas fa-exclamation-circle"></i>
+          ${message}
+        </div>
+      `;
     }
 
     function getErrorMessage(error) {
       if (error.name === "AbortError") return "Request timed out. Try again later.";
       if (error.message.includes("Failed to fetch")) {
-        return "Network or CORS error. Try using VPN or different link.";
+        return "Network error. Try using VPN or different link.";
       }
       return error.message || "Unknown error occurred.";
     }
