@@ -1,27 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terabox Downloader</title>
   <style>
-    /* Your existing CSS styles */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f5f7fa;
+      background-color: #eaeff5;
       margin: 0;
-      padding: 20px;
+      padding: 30px;
       color: #333;
     }
     .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     }
-    /* ... (keep all your existing styles) ... */
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .input-group {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus {
+      border-color: #2980b9;
+    }
+    button {
+      padding: 14px 24px;
+      margin-left: 10px;
+      background-color: #3498db;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      margin-top: 20px;
+    }
+    .success, .error {
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+    .success {
+      background-color: #e0f7e9;
+      color: #2e7d32;
+    }
+    .error {
+      background-color: #fdecea;
+      color: #c0392b;
+    }
+    .download-item {
+      margin-bottom: 10px;
+    }
+    .download-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #27ae60;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+    }
+    .download-btn:hover {
+      background-color: #219150;
+    }
   </style>
 </head>
 <body>
@@ -29,111 +110,90 @@
     <h1>Terabox Downloader</h1>
     <div class="input-group">
       <input type="text" id="linkInput" placeholder="Enter Terabox folder or file link..." />
+      <button onclick="generateLinks()">Generate</button>
     </div>
-    <button onclick="generateLinks()">Generate Download Links</button>
-    
     <div id="loading" class="loading">
       <div class="spinner"></div>
       <p>Generating download links, please wait...</p>
     </div>
-    
     <div id="result" class="result"></div>
   </div>
 
   <script>
-    // Enhanced with multiple fallback methods
     async function generateLinks() {
       const link = document.getElementById("linkInput").value.trim();
       const loading = document.getElementById("loading");
       const result = document.getElementById("result");
-      
+
       result.innerHTML = "";
       loading.style.display = "block";
-      
+
       if (!link) {
         showError("Please enter a Terabox link!");
         loading.style.display = "none";
         return;
       }
-      
+
       try {
-        // Try multiple methods sequentially
-        let responseData = await tryDirectConnection(link) || 
-                          await tryCORSProxy(link) || 
-                          await tryJSONP(link);
-        
-        if (!responseData) {
-          throw new Error("All connection methods failed");
-        }
-        
+        let responseData = await tryDirectConnection(link) ||
+                           await tryCORSProxy(link) ||
+                           await tryJSONP(link);
+
         if (!responseData || responseData.status !== "✅ Success") {
-          throw new Error("API did not return success status");
+          throw new Error("Could not fetch download links. Try another link.");
         }
-        
+
         const files = responseData["📋 Extracted Info"] || [];
-        
-        if (!files.length) {
-          throw new Error("No downloadable files found in this link");
-        }
-        
+        if (!files.length) throw new Error("No downloadable files found.");
+
         displayResults(files);
-        
       } catch (error) {
-        console.error("Error details:", error);
+        console.error(error);
         showError(getErrorMessage(error));
       } finally {
         loading.style.display = "none";
       }
     }
 
-    // Method 1: Direct connection
     async function tryDirectConnection(link) {
       try {
         const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
         const response = await fetchWithTimeout(apiUrl);
         return await response.json();
-      } catch (error) {
-        console.log("Direct connection failed, trying fallbacks...");
+      } catch {
         return null;
       }
     }
 
-    // Method 2: CORS Proxy
     async function tryCORSProxy(link) {
-      const PROXIES = [
+      const proxies = [
         'https://api.allorigins.win/get?url=',
         'https://cors-anywhere.herokuapp.com/',
         'https://thingproxy.freeboard.io/fetch/'
       ];
-      
       const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-      
-      for (const proxy of PROXIES) {
+
+      for (const proxy of proxies) {
         try {
           const response = await fetchWithTimeout(proxy + encodeURIComponent(apiUrl));
           const data = await response.json();
           return data.contents ? JSON.parse(data.contents) : data;
-        } catch (e) {
-          console.log(`Proxy ${proxy} failed`);
+        } catch {
+          continue;
         }
       }
       return null;
     }
 
-    // Method 3: JSONP fallback (if needed)
     function tryJSONP(link) {
       return new Promise((resolve) => {
-        // This would require server-side JSONP support
-        console.log("JSONP not implemented - would require API support");
         resolve(null);
       });
     }
 
-    // Utility function with timeout
     function fetchWithTimeout(url, timeout = 15000) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
-      
       return fetch(url, {
         signal: controller.signal,
         headers: { 'Accept': 'application/json' }
@@ -143,48 +203,36 @@
     function displayResults(files) {
       const result = document.getElementById("result");
       let html = `<div class="success">Found ${files.length} file(s)</div>`;
-      
       files.forEach((file, index) => {
         const fileName = file["📄 Title"] || `File ${index + 1}`;
         const fileSize = file["📦 Size"] || "Unknown size";
         const downloadLink = file["🔗 Direct Download Link"] || "#";
-        
+
         html += `
           <div class="download-item">
-            <a href="${downloadLink}" target="_blank" class="download-btn" download>
+            <a href="${downloadLink}" target="_blank" class="download-btn">
               ${fileName} (${fileSize})
             </a>
           </div>
         `;
       });
-      
       result.innerHTML = html;
     }
 
     function showError(message) {
-      const result = document.getElementById("result");
-      result.innerHTML = `<div class="error">${message}</div>`;
+      document.getElementById("result").innerHTML = `<div class="error">${message}</div>`;
     }
 
     function getErrorMessage(error) {
       if (error.name === "AbortError") return "Request timed out. Try again later.";
       if (error.message.includes("Failed to fetch")) {
-        return `
-          Network error. Possible solutions:<br>
-          1. Refresh the page<br>
-          2. Try a different network<br>
-          3. Enable CORS in your browser (for development)<br>
-          4. Check console for details (F12 > Console)
-        `;
+        return "Network or CORS error. Try using VPN or different link.";
       }
-      return error.message || "Unknown error occurred";
+      return error.message || "Unknown error occurred.";
     }
 
-    // Enter key press event listener
     document.getElementById("linkInput").addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        generateLinks();
-      }
+      if (event.key === "Enter") generateLinks();
     });
   </script>
 </body>
