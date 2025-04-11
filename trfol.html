@@ -120,55 +120,53 @@
   </div>
 
   <script>
-    async function getLinks() {
-      const linkInput = document.getElementById("linkInput");
-      const link = linkInput.value.trim();
-      const linkList = document.getElementById("linkList");
-      const error = document.getElementById("error");
-      const loading = document.getElementById("loading");
+  async function getLinks() {
+    const linkInput = document.getElementById("linkInput");
+    const link = linkInput.value.trim();
+    const linkList = document.getElementById("linkList");
+    const error = document.getElementById("error");
+    const loading = document.getElementById("loading");
 
-      linkList.innerHTML = "";
-      error.innerText = "";
+    linkList.innerHTML = "";
+    error.innerText = "";
 
-      if (!link) {
-        error.innerText = "Please enter a Terabox link!";
+    if (!link) {
+      error.innerText = "Please enter a Terabox link!";
+      return;
+    }
+
+    loading.style.display = "block";
+
+    try {
+      const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+      const response = await fetch(apiUrl);
+      const result = await response.json();
+
+      const files = result["📋 Extracted Info"];
+
+      if (!files || !Array.isArray(files) || files.length === 0) {
+        error.innerText = "No files found or invalid Terabox link!";
         return;
       }
 
-      loading.style.display = "block";
+      files.forEach(file => {
+        const btn = document.createElement("a");
+        btn.href = file["🔗 Direct Download Link"] || "#";
+        btn.target = "_blank";
+        btn.className = "download-btn";
+        btn.innerText = `📁 ${file["📄 Title"] || "Unknown"} (${file["📦 Size"] || "?"})`;
+        linkList.appendChild(btn);
+      });
 
-      try {
-        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-        const response = await fetch(apiUrl);
+      linkInput.value = "";
 
-        if (!response.ok) throw new Error("API response not OK");
-
-        const result = await response.json();
-        const files = Array.isArray(result) ? result : result.data;
-
-        if (!files || !Array.isArray(files) || files.length === 0) {
-          error.innerText = "No files found or invalid Terabox link!";
-          return;
-        }
-
-        files.forEach(file => {
-          const btn = document.createElement("a");
-          btn.href = file.download_url || file.url || "#";
-          btn.target = "_blank";
-          btn.className = "download-btn";
-          btn.innerText = `📁 ${file.name || "Unknown"} (${file.size || "?"})`;
-          linkList.appendChild(btn);
-        });
-
-        linkInput.value = "";
-
-      } catch (err) {
-        console.error("Error fetching links:", err);
-        error.innerText = "Something went wrong while fetching download links!";
-      } finally {
-        loading.style.display = "none";
-      }
+    } catch (err) {
+      console.error("Error fetching links:", err);
+      error.innerText = "Something went wrong while fetching download links!";
+    } finally {
+      loading.style.display = "none";
     }
+  }
   </script>
 </body>
 </html>
