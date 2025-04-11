@@ -1,175 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terabox Downloader</title>
   <style>
     body {
-      background: #eaf4fc;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+      color: #333;
     }
-
     .container {
-      max-width: 750px;
-      margin: 50px auto;
-      background: #ffffff;
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
       padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
     h1 {
       text-align: center;
       color: #2c3e50;
+      margin-bottom: 30px;
     }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 15px;
-      font-size: 16px;
-      border: 2px solid #ccc;
-      border-radius: 10px;
+    .input-group {
       margin-bottom: 20px;
     }
-
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
     button {
-      background: #2ecc71;
+      background-color: #3498db;
       color: white;
+      border: none;
       padding: 12px 25px;
       font-size: 16px;
-      border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
       display: block;
-      margin: 0 auto 20px;
+      margin: 0 auto;
+      transition: background-color 0.3s;
     }
-
     button:hover {
-      background: #27ae60;
-    }
-
-    .link-container {
-      margin-top: 30px;
-    }
-
-    .download-btn {
-      background-color: #3498db;
-      color: #fff;
-      padding: 12px 20px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 10px;
-      width: 100%;
-      text-align: left;
-      text-decoration: none;
-      display: block;
-      font-size: 16px;
-      transition: background 0.3s ease;
-    }
-
-    .download-btn:hover {
       background-color: #2980b9;
     }
-
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
     .loading {
       text-align: center;
-      margin-top: 20px;
-      color: #555;
+      margin: 20px 0;
+      display: none;
     }
-
     .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
+      border: 4px solid rgba(0, 0, 0, 0.1);
       border-radius: 50%;
+      border-top: 4px solid #3498db;
       width: 30px;
       height: 30px;
       animation: spin 1s linear infinite;
-      margin: 10px auto;
+      margin: 0 auto 10px;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+    .result {
+      margin-top: 30px;
+    }
+    .download-item {
+      margin-bottom: 15px;
+    }
+    .download-btn {
+      display: block;
+      padding: 12px 15px;
+      background-color: #2ecc71;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    .download-btn:hover {
+      background-color: #27ae60;
+    }
+    .error {
+      color: #e74c3c;
+      padding: 15px;
+      background-color: #fadbd8;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .success {
+      color: #27ae60;
+      text-align: center;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Terabox Folder Downloader</h1>
-    <input type="text" id="linkInput" placeholder="Paste your Terabox folder or file link here..." />
-    <button onclick="getLinks()">Generate Links</button>
-
-    <div id="loading" class="loading" style="display: none;">
-      <div class="spinner"></div>
-      Fetching download links...
+    <h1>Terabox Downloader</h1>
+    <div class="input-group">
+      <input type="text" id="linkInput" placeholder="Enter Terabox folder or file link..." />
     </div>
-
-    <div id="linkList" class="link-container"></div>
-    <div id="error" class="error"></div>
+    <button onclick="generateLinks()">Generate Download Links</button>
+    
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Generating download links, please wait...</p>
+    </div>
+    
+    <div id="result" class="result"></div>
   </div>
 
   <script>
-    async function getLinks() {
-      const linkInput = document.getElementById("linkInput");
-      const link = linkInput.value.trim();
-      const linkList = document.getElementById("linkList");
-      const error = document.getElementById("error");
+    async function generateLinks() {
+      const link = document.getElementById("linkInput").value.trim();
       const loading = document.getElementById("loading");
-
-      linkList.innerHTML = "";
-      error.innerText = "";
-
+      const result = document.getElementById("result");
+      
+      // Clear previous results
+      result.innerHTML = "";
+      loading.style.display = "block";
+      
       if (!link) {
-        error.innerText = "Please enter a Terabox link!";
+        showError("Please enter a Terabox link!");
+        loading.style.display = "none";
         return;
       }
-
-      loading.style.display = "block";
-
+      
       try {
+        // শুধুমাত্র আপনার ওয়ার্কিং API ব্যবহার করা হচ্ছে
         const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
         const response = await fetch(apiUrl);
-
-        if (!response.ok) throw new Error("API response not OK");
-
-        const result = await response.json();
-
-        const files = result["📋 Extracted Info"];
-
-        if (!files || !Array.isArray(files) || files.length === 0) {
-          error.innerText = "No files found or invalid Terabox link!";
-          return;
+        
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
         }
-
-        files.forEach(file => {
-          const btn = document.createElement("a");
-          btn.href = file["🔗 Direct Download Link"] || "#";
-          btn.target = "_blank";
-          btn.className = "download-btn";
-          btn.innerText = `📁 ${file["📄 Title"] || "Unknown"} (${file["📦 Size"] || "?"})`;
-          linkList.appendChild(btn);
-        });
-
-        linkInput.value = "";
-
-      } catch (err) {
-        console.error("Error fetching links:", err);
-        error.innerText = "Something went wrong while fetching download links!";
+        
+        const responseData = await response.json();
+        
+        // আপনার API-এর রেসপন্স ফরম্যাট অনুযায়ী ডাটা এক্সট্র্যাক্ট করা
+        const files = responseData["📋 Extracted Info"] || [];
+        
+        if (!files.length) {
+          throw new Error("No files found in this link");
+        }
+        
+        displayResults(files);
+        
+      } catch (error) {
+        showError(error.message);
+        console.error("Error details:", error);
       } finally {
         loading.style.display = "none";
       }
     }
+    
+    function displayResults(files) {
+      const result = document.getElementById("result");
+      let html = `<div class="success">Found ${files.length} file(s)</div>`;
+      
+      files.forEach((file, index) => {
+        const fileName = file["📄 Title"] || `File ${index + 1}`;
+        const fileSize = file["📦 Size"] || "Unknown size";
+        const downloadLink = file["🔗 Direct Download Link"] || "#";
+        
+        html += `
+          <div class="download-item">
+            <a href="${downloadLink}" target="_blank" class="download-btn">
+              ${fileName} (${fileSize})
+            </a>
+          </div>
+        `;
+      });
+      
+      result.innerHTML = html;
+    }
+    
+    function showError(message) {
+      const result = document.getElementById("result");
+      result.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    // Enter key press event listener
+    document.getElementById("linkInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        generateLinks();
+      }
+    });
   </script>
 </body>
 </html>
