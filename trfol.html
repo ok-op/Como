@@ -109,14 +109,14 @@
   <div class="container">
     <h1><i class="fas fa-cloud-download-alt"></i> Terabox Downloader</h1>
     <div class="input-group">
-      <input type="text" id="linkInput" placeholder="Paste Terabox file or folder link here..." />
+      <input type="text" id="linkInput" placeholder="টেরাবক্স লিংক পেস্ট করুন..." />
       <button class="btn" onclick="generateLinks()">
-        <i class="fas fa-bolt"></i> Generate Links
+        <i class="fas fa-bolt"></i> লিংক জেনারেট করুন
       </button>
     </div>
     <div id="loading" class="loading">
       <div class="spinner"></div>
-      <p>Generating download links, please wait...</p>
+      <p>লিংক তৈরি করা হচ্ছে, অপেক্ষা করুন...</p>
     </div>
     <div id="result" class="result"></div>
   </div>
@@ -130,7 +130,7 @@
       loading.style.display = "block";
 
       if (!link) {
-        alert("টেরাবক্স লিংক দিন স্যার!");
+        alert("লিংক ইনপুট দিন!");
         loading.style.display = "none";
         return;
       }
@@ -138,24 +138,33 @@
       try {
         const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
         
-        const response = await fetch(apiUrl);
+        // 15 সেকেন্ড টাইমআউট যোগ করা হয়েছে
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(apiUrl, {
+          signal: controller.signal,
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+        clearTimeout(timeoutId);
+
         const data = await response.json();
 
-        console.log("API Response:", data); // ডিবাগিং জন্য
-
-        if (data.status !== "✅ Success" || !data["📋 Extracted Info"]?.length) {
-          throw new Error("ডাউনলোড লিংক জেনারেট করতে ব্যর্থ 😢");
+        if (!response.ok || data.status !== "✅ Success" || !data["📋 Extracted Info"]?.length) {
+          throw new Error(data.message || "ডাউনলোড লিংক জেনারেট করতে ব্যর্থ");
         }
 
         const files = data["📋 Extracted Info"];
-
+        
         files.forEach(file => {
           const item = document.createElement("div");
           item.className = "download-item";
 
           const info = document.createElement("div");
           info.innerHTML = `
-            <strong>${file["📄 Title"]}</strong><br>
+            <strong>${file["📄 Title"]}</strong>
             <small>${file["📦 Size"]}</small>
           `;
 
@@ -164,16 +173,24 @@
           downloadBtn.className = "download-btn";
           downloadBtn.innerHTML = `<i class="fas fa-download"></i> ডাউনলোড`;
           downloadBtn.target = "_blank";
-          downloadBtn.download = file["📄 Title"]; // ফাইল নাম ঠিক করা হয়েছে
+          downloadBtn.rel = "noopener noreferrer";
 
-          item.appendChild(info);
-          item.appendChild(downloadBtn);
+          // থাম্বনেইল প্রিভিউ যোগ করা হয়েছে
+          if(file["🖼️ Thumbnails"]) {
+            const thumb = document.createElement("img");
+            thumb.src = Object.values(file["🖼️ Thumbnails"])[0];
+            thumb.style.maxWidth = "100px";
+            thumb.style.borderRadius = "8px";
+            info.prepend(thumb);
+          }
+
+          item.append(info, downloadBtn);
           result.appendChild(item);
         });
 
       } catch (error) {
-        console.error(error);
-        alert("সমস্যা: " + (error.message || "API রেসপন্স ফেইল"));
+        console.error("Error:", error);
+        alert(`ত্রুটি: ${error.message || "API সংযোগ ব্যর্থ"}`);
       } finally {
         loading.style.display = "none";
       }
