@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terabox Downloader</title>
+  <style>
+    body {
+      background: #e0f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border-left: 10px solid #4caf50;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00796b;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: 2px solid #b2dfdb;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background: #f0fdfa;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: block;
+      margin: auto;
+    }
+
+    button:hover {
+      background: #388e3c;
+    }
+
+    .link-container {
+      margin-top: 30px;
+    }
+
+    .download-btn {
+      background-color: #2196F3;
+      color: #fff;
+      padding: 12px 20px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      text-align: left;
+      text-decoration: none;
+      display: block;
+      font-size: 16px;
+      transition: background 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background-color: #0b7dda;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 16px;
+      color: #555;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Terabox Downloader</h1>
+    <input type="text" id="linkInput" placeholder="Paste your Terabox folder or file link here..." />
+    <button onclick="getLinks()">Generate Links</button>
+
+    <div id="loading" class="loading" style="display:none;">Please wait, generating download links...</div>
+    <div id="error" class="error"></div>
+    <div id="linkList" class="link-container"></div>
+  </div>
+
+  <script>
+    async function getLinks() {
+      const link = document.getElementById("linkInput").value.trim();
+      const linkList = document.getElementById("linkList");
+      const error = document.getElementById("error");
+      const loading = document.getElementById("loading");
+
+      linkList.innerHTML = "";
+      error.innerText = "";
+      loading.style.display = "block";
+
+      if (!link) {
+        loading.style.display = "none";
+        error.innerText = "Please enter a Terabox link!";
+        return;
+      }
+
+      try {
+        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        loading.style.display = "none";
+
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          error.innerText = "No files found or invalid link!";
+          return;
+        }
+
+        data.forEach(file => {
+          const btn = document.createElement("a");
+          btn.href = file.download_url;
+          btn.target = "_blank";
+          btn.className = "download-btn";
+          btn.innerText = `▶️ ${file.name} (${file.size})`;
+          linkList.appendChild(btn);
+        });
+      } catch (err) {
+        loading.style.display = "none";
+        error.innerText = "Something went wrong while fetching download links!";
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+  </html>
