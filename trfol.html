@@ -135,28 +135,48 @@
       }
       
       try {
-        // শুধুমাত্র আপনার ওয়ার্কিং API ব্যবহার করা হচ্ছে
-        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-        const response = await fetch(apiUrl);
+        // API URL with timestamp to prevent caching
+        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}&t=${Date.now()}`;
+        
+        // Enhanced fetch with timeout and CORS mode
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+        
+        const response = await fetch(apiUrl, {
+          mode: 'cors',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
+          throw new Error(`Server responded with status ${response.status}`);
         }
         
         const responseData = await response.json();
         
-        // আপনার API-এর রেসপন্স ফরম্যাট অনুযায়ী ডাটা এক্সট্র্যাক্ট করা
-        const files = responseData["📋 Extracted Info"] || [];
+        // Handle different response formats
+        const files = responseData["📋 Extracted Info"] || responseData.data || [];
         
         if (!files.length) {
-          throw new Error("No files found in this link");
+          throw new Error("No downloadable files found in this link");
         }
         
         displayResults(files);
         
       } catch (error) {
-        showError(error.message);
-        console.error("Error details:", error);
+        console.error("Full error:", error);
+        let errorMessage = "Failed to generate download links. ";
+        
+        if (error.name === "AbortError") {
+          errorMessage += "Request timed out (15 seconds).";
+        } else if (error.message.includes("Failed to fetch")) {
+          errorMessage += "Network error or API is currently unavailable.";
+        } else {
+          errorMessage += error.message;
+        }
+        
+        showError(errorMessage);
       } finally {
         loading.style.display = "none";
       }
@@ -167,13 +187,13 @@
       let html = `<div class="success">Found ${files.length} file(s)</div>`;
       
       files.forEach((file, index) => {
-        const fileName = file["📄 Title"] || `File ${index + 1}`;
-        const fileSize = file["📦 Size"] || "Unknown size";
-        const downloadLink = file["🔗 Direct Download Link"] || "#";
+        const fileName = file["📄 Title"] || file.name || `File ${index + 1}`;
+        const fileSize = file["📦 Size"] || file.size || "Unknown size";
+        const downloadLink = file["🔗 Direct Download Link"] || file.direct_link || "#";
         
         html += `
           <div class="download-item">
-            <a href="${downloadLink}" target="_blank" class="download-btn">
+            <a href="${downloadLink}" target="_blank" class="download-btn" download>
               ${fileName} (${fileSize})
             </a>
           </div>
