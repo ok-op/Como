@@ -141,6 +141,8 @@
         const response = await fetch(apiUrl);
         const data = await response.json();
 
+        console.log("API Response:", data); // ডিবাগিং জন্য
+
         if (data.status !== "✅ Success" || !data["📋 Extracted Info"]?.length) {
           throw new Error("ডাউনলোড লিংক জেনারেট করতে ব্যর্থ 😢");
         }
@@ -162,6 +164,7 @@
           downloadBtn.className = "download-btn";
           downloadBtn.innerHTML = `<i class="fas fa-download"></i> ডাউনলোড`;
           downloadBtn.target = "_blank";
+          downloadBtn.download = file["📄 Title"]; // ফাইল নাম ঠিক করা হয়েছে
 
           item.appendChild(info);
           item.appendChild(downloadBtn);
@@ -170,7 +173,7 @@
 
       } catch (error) {
         console.error(error);
-        alert("সমস্যা: " + (error.message || "API কাজ করছে না"));
+        alert("সমস্যা: " + (error.message || "API রেসপন্স ফেইল"));
       } finally {
         loading.style.display = "none";
       }
