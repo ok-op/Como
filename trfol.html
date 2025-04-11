@@ -130,31 +130,19 @@
       loading.style.display = "block";
 
       if (!link) {
-        alert("Please enter a Terabox link!");
+        alert("টেরাবক্স লিংক দিন স্যার!");
         loading.style.display = "none";
         return;
       }
 
       try {
         const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-        const response = await fetch(apiUrl, {
-          signal: controller.signal,
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error("Failed to fetch download links.");
-
+        
+        const response = await fetch(apiUrl);
         const data = await response.json();
 
         if (data.status !== "✅ Success" || !data["📋 Extracted Info"]?.length) {
-          throw new Error("No downloadable files found.");
+          throw new Error("ডাউনলোড লিংক জেনারেট করতে ব্যর্থ 😢");
         }
 
         const files = data["📋 Extracted Info"];
@@ -164,13 +152,16 @@
           item.className = "download-item";
 
           const info = document.createElement("div");
-          info.innerHTML = `<strong>${file.file_name}</strong><br><small>${file.size}</small>`;
+          info.innerHTML = `
+            <strong>${file["📄 Title"]}</strong><br>
+            <small>${file["📦 Size"]}</small>
+          `;
 
           const downloadBtn = document.createElement("a");
-          downloadBtn.href = file.download_url;
-          downloadBtn.download = file.file_name;
+          downloadBtn.href = file["🔗 Direct Download Link"];
           downloadBtn.className = "download-btn";
-          downloadBtn.innerHTML = `<i class="fas fa-download"></i> Download`;
+          downloadBtn.innerHTML = `<i class="fas fa-download"></i> ডাউনলোড`;
+          downloadBtn.target = "_blank";
 
           item.appendChild(info);
           item.appendChild(downloadBtn);
@@ -179,7 +170,7 @@
 
       } catch (error) {
         console.error(error);
-        alert("Error: " + (error.message || "Something went wrong."));
+        alert("সমস্যা: " + (error.message || "API কাজ করছে না"));
       } finally {
         loading.style.display = "none";
       }
