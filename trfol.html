@@ -1,48 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terabox Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --dark: #212529;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--dark);
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 30px;
+      font-weight: 700;
+      font-size: 2.5rem;
+    }
+    .input-group {
+      display: flex;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 15px 20px;
+      font-size: 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      outline: none;
+    }
+    .btn {
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 30px 0;
+    }
+    .spinner {
+      border: 5px solid rgba(67, 97, 238, 0.1);
+      border-top: 5px solid var(--primary);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      margin-top: 30px;
+    }
+    .download-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--accent);
+    }
+    .download-btn {
+      padding: 10px 20px;
+      background: var(--success);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h2>Enter Terabox Link:</h2>
-  <input type="text" id="linkInput" placeholder="Enter Terabox Link" style="width: 300px;">
-  <button onclick="generateLink()">Generate Download</button>
-
-  <div id="result" style="margin-top: 20px;"></div>
+  <div class="container">
+    <h1><i class="fas fa-cloud-download-alt"></i> Terabox Downloader</h1>
+    <div class="input-group">
+      <input type="text" id="linkInput" placeholder="Paste Terabox file or folder link here..." />
+      <button class="btn" onclick="generateLinks()">
+        <i class="fas fa-bolt"></i> Generate Links
+      </button>
+    </div>
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Generating download links, please wait...</p>
+    </div>
+    <div id="result" class="result"></div>
+  </div>
 
   <script>
-    async function generateLink() {
-      const link = document.getElementById("linkInput").value;
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "Processing...";
+    async function generateLinks() {
+      const link = document.getElementById("linkInput").value.trim();
+      const loading = document.getElementById("loading");
+      const result = document.getElementById("result");
+      result.innerHTML = "";
+      loading.style.display = "block";
 
-      if (!link.includes("terabox")) {
-        resultDiv.innerHTML = "Please enter a valid Terabox link.";
+      if (!link) {
+        alert("Please enter a Terabox link!");
+        loading.style.display = "none";
         return;
       }
 
       try {
-        const response = await fetch(`https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`);
+        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(apiUrl, {
+          signal: controller.signal,
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error("Failed to fetch download links.");
+
         const data = await response.json();
 
-        if (data.status !== true || !data.data?.directLink) {
-          resultDiv.innerHTML = "Failed to generate download link.";
-          return;
+        if (data.status !== "✅ Success" || !data["📋 Extracted Info"]?.length) {
+          throw new Error("No downloadable files found.");
         }
 
-        const fileName = data.data.name || "Download File";
-        const downloadUrl = data.data.directLink;
+        const files = data["📋 Extracted Info"];
 
-        resultDiv.innerHTML = `
-          <p><strong>${fileName}</strong> is ready to download:</p>
-          <a href="${downloadUrl}" target="_blank">
-            <button>⬇️ Download Now</button>
-          </a>
-        `;
-      } catch (err) {
-        console.error(err);
-        resultDiv.innerHTML = "Error while processing link.";
+        files.forEach(file => {
+          const item = document.createElement("div");
+          item.className = "download-item";
+
+          const info = document.createElement("div");
+          info.innerHTML = `<strong>${file.file_name}</strong><br><small>${file.size}</small>`;
+
+          const downloadBtn = document.createElement("a");
+          downloadBtn.href = file.download_url;
+          downloadBtn.download = file.file_name;
+          downloadBtn.className = "download-btn";
+          downloadBtn.innerHTML = `<i class="fas fa-download"></i> Download`;
+
+          item.appendChild(info);
+          item.appendChild(downloadBtn);
+          result.appendChild(item);
+        });
+
+      } catch (error) {
+        console.error(error);
+        alert("Error: " + (error.message || "Something went wrong."));
+      } finally {
+        loading.style.display = "none";
       }
     }
   </script>
