@@ -279,7 +279,6 @@
     </div>
     <div id="result" class="result"></div>
   </div>
-
   <script>
     async function generateLinks() {
       const link = document.getElementById("linkInput").value.trim();
@@ -296,9 +295,7 @@
       }
 
       try {
-        let responseData = await tryDirectConnection(link) ||
-                           await tryCORSProxy(link) ||
-                           await tryJSONP(link);
+        const responseData = await tryDirectConnection(link);
 
         if (!responseData || responseData.status !== "✅ Success") {
           throw new Error("Could not fetch download links. Try another link.");
@@ -321,35 +318,9 @@
         const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
         const response = await fetchWithTimeout(apiUrl);
         return await response.json();
-      } catch {
-        return null;
+      } catch (error) {
+        throw new Error("Direct connection failed. Please check your internet connection.");
       }
-    }
-
-    async function tryCORSProxy(link) {
-      const proxies = [
-        'https://api.allorigins.win/get?url=',
-        'https://cors-anywhere.herokuapp.com/',
-        'https://thingproxy.freeboard.io/fetch/'
-      ];
-      const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
-
-      for (const proxy of proxies) {
-        try {
-          const response = await fetchWithTimeout(proxy + encodeURIComponent(apiUrl));
-          const data = await response.json();
-          return data.contents ? JSON.parse(data.contents) : data;
-        } catch {
-          continue;
-        }
-      }
-      return null;
-    }
-
-    function tryJSONP(link) {
-      return new Promise((resolve) => {
-        resolve(null);
-      });
     }
 
     function fetchWithTimeout(url, timeout = 15000) {
@@ -408,7 +379,7 @@
     function getErrorMessage(error) {
       if (error.name === "AbortError") return "Request timed out. Try again later.";
       if (error.message.includes("Failed to fetch")) {
-        return "Network error. Try using VPN or different link.";
+        return "Network error. Please check your internet connection.";
       }
       return error.message || "Unknown error occurred.";
     }
