@@ -135,28 +135,32 @@
       }
       
       try {
-        // API URL with timestamp to prevent caching
-        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}&t=${Date.now()}`;
+        // Using only your working API endpoint
+        const apiUrl = `https://terabox-pro-api.vercel.app/api?link=${encodeURIComponent(link)}`;
         
-        // Enhanced fetch with timeout and CORS mode
+        // Enhanced fetch request with timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
         
         const response = await fetch(apiUrl, {
-          mode: 'cors',
           signal: controller.signal
         });
         
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error(`Server responded with status ${response.status}`);
+          throw new Error(`API request failed with status ${response.status}`);
         }
         
         const responseData = await response.json();
         
-        // Handle different response formats
-        const files = responseData["📋 Extracted Info"] || responseData.data || [];
+        // Check if API returned success status
+        if (responseData.status !== "✅ Success") {
+          throw new Error("API did not return success status");
+        }
+        
+        // Extract files from response
+        const files = responseData["📋 Extracted Info"] || [];
         
         if (!files.length) {
           throw new Error("No downloadable files found in this link");
@@ -165,13 +169,13 @@
         displayResults(files);
         
       } catch (error) {
-        console.error("Full error:", error);
+        console.error("Error details:", error);
         let errorMessage = "Failed to generate download links. ";
         
         if (error.name === "AbortError") {
-          errorMessage += "Request timed out (15 seconds).";
+          errorMessage += "Request timed out (10 seconds).";
         } else if (error.message.includes("Failed to fetch")) {
-          errorMessage += "Network error or API is currently unavailable.";
+          errorMessage += "Network error. Please check your internet connection.";
         } else {
           errorMessage += error.message;
         }
@@ -187,9 +191,9 @@
       let html = `<div class="success">Found ${files.length} file(s)</div>`;
       
       files.forEach((file, index) => {
-        const fileName = file["📄 Title"] || file.name || `File ${index + 1}`;
-        const fileSize = file["📦 Size"] || file.size || "Unknown size";
-        const downloadLink = file["🔗 Direct Download Link"] || file.direct_link || "#";
+        const fileName = file["📄 Title"] || `File ${index + 1}`;
+        const fileSize = file["📦 Size"] || "Unknown size";
+        const downloadLink = file["🔗 Direct Download Link"] || "#";
         
         html += `
           <div class="download-item">
